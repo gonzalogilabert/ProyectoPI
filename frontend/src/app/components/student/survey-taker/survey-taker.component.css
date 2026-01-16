@@ -1,0 +1,4 @@
+/* Styles for Survey Taker */
+.progress-bar {
+    transition: width 0.5s ease;
+}

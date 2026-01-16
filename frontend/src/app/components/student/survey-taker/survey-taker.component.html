@@ -1,0 +1,76 @@
+<div class="container mt-5" *ngIf="survey">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="text-dark-custom">{{survey.title}}</h1>
+                    <p class="text-muted">{{survey.description}}</p>
+                </div>
+                <div *ngIf="survey.timeLimit > 0" class="badge bg-danger p-3 fs-5 shadow-sm">
+                    <i class="bi bi-alarm me-2"></i>{{formatTime(timeLeft)}}
+                </div>
+            </div>
+
+            <div class="progress mb-4" style="height: 10px;">
+                <div class="progress-bar bg-primary-custom" role="progressbar"
+                    [style.width]="((currentPage + 1) / totalPages * 100) + '%'"></div>
+            </div>
+
+            <form [formGroup]="responseForm" (ngSubmit)="onSubmit()">
+                <div formArrayName="answers">
+                    <div *ngFor="let q of questionsForCurrentPage; let i=index" class="card mb-4 shadow-sm border-0">
+                        <div class="card-body p-4">
+                            <h5 class="card-title mb-4">
+                                {{q.text}}
+                                <span *ngIf="q.required" class="text-danger">*</span>
+                            </h5>
+
+                            <div [formGroupName]="currentPage * questionsPerPage + i">
+                                <!-- Text Type -->
+                                <div *ngIf="q.type === 'text'">
+                                    <textarea formControlName="value" class="form-control" rows="3"
+                                        placeholder="Escribe tu respuesta aquí..."></textarea>
+                                </div>
+
+                                <!-- Test (Single) Type -->
+                                <div *ngIf="q.type === 'test'">
+                                    <div *ngFor="let option of q.options" class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" [value]="option"
+                                            formControlName="value" [id]="'opt' + i + option">
+                                        <label class="form-check-label" [for]="'opt' + i + option">{{option}}</label>
+                                    </div>
+                                </div>
+
+                                <!-- multi Type -->
+                                <div *ngIf="q.type === 'multi'">
+                                    <div *ngFor="let option of q.options" class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox"
+                                            (change)="onMultiChange($event, currentPage * questionsPerPage + i, option)"
+                                            [id]="'opt' + i + option">
+                                        <label class="form-check-label" [for]="'opt' + i + option">{{option}}</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4 mb-5">
+                    <button type="button" class="btn btn-outline-secondary btn-lg" (click)="prevPage()"
+                        [disabled]="currentPage === 0">
+                        <i class="bi bi-chevron-left me-2"></i>Anterior
+                    </button>
+
+                    <button type="button" class="btn btn-primary-custom btn-lg" (click)="nextPage()"
+                        *ngIf="currentPage < totalPages - 1">
+                        Siguiente<i class="bi bi-chevron-right ms-2"></i>
+                    </button>
+
+                    <button type="submit" class="btn btn-success btn-lg" *ngIf="currentPage === totalPages - 1">
+                        <i class="bi bi-send-fill me-2"></i>Finalizar Encuesta
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
