@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { SurveyService } from '../../../services/survey.service';
 import { Router } from '@angular/router';
+import { AlertService } from '../../../services/alert.service';
 
 @Component({
     selector: 'app-survey-creator',
@@ -14,11 +15,12 @@ export class SurveyCreatorComponent implements OnInit {
     constructor(
         private fb: FormBuilder,
         private surveyService: SurveyService,
-        private router: Router
+        private router: Router,
+        private alertService: AlertService
     ) {
         this.surveyForm = this.fb.group({
-            title: ['', Validators.required],
-            description: [''],
+            title: ['', [Validators.required, Validators.maxLength(50)]],
+            description: ['', Validators.maxLength(250)],
             timeLimit: [0], // 0 means no limit
             questions: this.fb.array([])
         });
@@ -64,7 +66,7 @@ export class SurveyCreatorComponent implements OnInit {
     onTypeChange(index: number) {
         const question = this.questions.at(index);
         const options = question.get('options') as FormArray;
-        if (question.get('type')?.value === 'text') {
+        if (question.get('type')?.value === 'text' || question.get('type')?.value === 'scale') {
             while (options.length !== 0) {
                 options.removeAt(0);
             }
@@ -77,13 +79,16 @@ export class SurveyCreatorComponent implements OnInit {
         if (this.surveyForm.valid) {
             this.surveyService.createSurvey(this.surveyForm.value).subscribe({
                 next: (res) => {
-                    alert('Encuesta creada con éxito');
+                    this.alertService.success('Encuesta creada con éxito');
                     this.router.navigate(['/list']);
                 },
-                error: (err) => console.error(err)
+                error: (err) => {
+                    console.error(err);
+                    this.alertService.error('Hubo un error al crear la encuesta');
+                }
             });
         } else {
-            alert('Por favor, rellena todos los campos obligatorios.');
+            this.alertService.error('Por favor, rellena todos los campos obligatorios.');
         }
     }
 }

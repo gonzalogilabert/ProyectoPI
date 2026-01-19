@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const QuestionSchema = new mongoose.Schema({
     text: { type: String, required: true },
-    type: { type: String, enum: ['text', 'test', 'multi'], required: true },
+    type: { type: String, enum: ['text', 'test', 'multi', 'scale'], required: true },
     required: { type: Boolean, default: false },
     options: [{ type: String }] // For 'test' and 'multi' types
 });

@@ -50,6 +50,18 @@
                                         <label class="form-check-label" [for]="'opt' + i + option">{{option}}</label>
                                     </div>
                                 </div>
+
+                                <!-- Scale Type -->
+                                <div *ngIf="q.type === 'scale'" class="d-flex justify-content-between px-3">
+                                    <div *ngFor="let val of [1,2,3,4,5]" class="text-center">
+                                        <input class="btn-check" type="radio" [value]="val" formControlName="value"
+                                            [id]="'scale' + i + val">
+                                        <label
+                                            class="btn btn-outline-primary rounded-circle p-3 d-flex align-items-center justify-content-center"
+                                            style="width: 50px; height: 50px;" [for]="'scale' + i + val">{{val}}</label>
+                                        <div class="small text-muted mt-1">{{val}}</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

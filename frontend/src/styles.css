@@ -2,25 +2,38 @@
 @import 'bootstrap-icons/font/bootstrap-icons.css';
 
 :root {
-  --primary-blue: #1296d6;
-  --dark-blue: #082b6e;
-  --light-gray: #f8f9fa;
-  --border-gray: #dee2e6;
+    --primary-blue: #1296d6;
+    --dark-blue: #082b6e;
+    --light-gray: #f8f9fa;
+    --border-gray: #dee2e6;
 }
 
 body {
-    background-color: var(--light-gray);
+    background-color: #2f4c82;
+    color: white;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.bg-primary-custom { background-color: var(--primary-blue); color: white; }
-.bg-dark-custom { background-color: var(--dark-blue); color: white; }
-.text-primary-custom { color: var(--primary-blue); }
+.bg-primary-custom {
+    background-color: var(--primary-blue);
+    color: white;
+}
+
+.bg-dark-custom {
+    background-color: var(--dark-blue);
+    color: white;
+}
+
+.text-primary-custom {
+    color: var(--primary-blue);
+}
+
 .btn-primary-custom {
     background-color: var(--primary-blue);
     border-color: var(--primary-blue);
     color: white;
 }
+
 .btn-primary-custom:hover {
     background-color: var(--dark-blue);
     border-color: var(--dark-blue);
