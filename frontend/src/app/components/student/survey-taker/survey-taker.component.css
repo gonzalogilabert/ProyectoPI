@@ -2,3 +2,19 @@
 .progress-bar {
     transition: width 0.5s ease;
 }
+
+
+.survey-description {
+    background-color: transparent;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* Override text-muted for survey description */
+.text-muted {
+    color: white !important;
+}

@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SurveyService } from '../../../services/survey.service';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { interval, Subscription } from 'rxjs';
+import { AlertService } from '../../../services/alert.service';
 
 @Component({
     selector: 'app-survey-taker',
@@ -21,7 +22,8 @@ export class SurveyTakerComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         private router: Router,
         private surveyService: SurveyService,
-        private fb: FormBuilder
+        private fb: FormBuilder,
+        private alertService: AlertService
     ) {
         this.responseForm = this.fb.group({
             answers: this.fb.array([])
@@ -115,13 +117,13 @@ export class SurveyTakerComponent implements OnInit, OnDestroy {
             };
             this.surveyService.submitResponse(payload).subscribe({
                 next: () => {
-                    alert('Encuesta enviada correctamente. ¡Gracias!');
+                    this.alertService.success('Encuesta enviada correctamente. ¡Gracias!', 'Éxito');
                     this.router.navigate(['/']);
                 },
                 error: (err) => console.error(err)
             });
         } else {
-            alert('Por favor, responde a todas las preguntas obligatorias.');
+            this.alertService.error('Por favor, responde a todas las preguntas obligatorias.', 'Validación');
         }
     }
 
