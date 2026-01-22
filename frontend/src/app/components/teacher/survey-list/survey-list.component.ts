@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SurveyService } from '../../../services/survey.service';
+import { AlertService } from '../../../services/alert.service';
 
 @Component({
     selector: 'app-survey-list',
@@ -9,7 +10,7 @@ import { SurveyService } from '../../../services/survey.service';
 export class SurveyListComponent implements OnInit {
     surveys: any[] = [];
 
-    constructor(private surveyService: SurveyService) { }
+    constructor(private surveyService: SurveyService, private alertService: AlertService) { }
 
     ngOnInit(): void {
         this.loadSurveys();
@@ -22,8 +23,12 @@ export class SurveyListComponent implements OnInit {
         });
     }
 
-    deleteSurvey(id: string) {
-        if (confirm('¿Estás seguro de que quieres eliminar esta encuesta?')) {
+    async deleteSurvey(id: string) {
+        const confirmed = await this.alertService.confirm(
+            '¿Estás seguro de que quieres eliminar esta encuesta?',
+            'Confirmar eliminación'
+        );
+        if (confirmed) {
             this.surveyService.deleteSurvey(id).subscribe({
                 next: () => this.loadSurveys(),
                 error: (err) => console.error(err)
@@ -38,7 +43,7 @@ export class SurveyListComponent implements OnInit {
     copyUrl(id: string) {
         const url = this.getSurveyUrl(id);
         navigator.clipboard.writeText(url).then(() => {
-            alert('URL copiada al portapapeles');
+            this.alertService.success('URL copiada al portapapeles', 'Copiado');
         });
     }
 }
