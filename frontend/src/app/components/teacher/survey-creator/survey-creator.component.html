@@ -26,6 +26,17 @@
                     <small class="text-muted">Si es 0, el alumno no tendrá límite de tiempo.</small>
                 </div>
 
+                <div class="mb-4">
+                    <div class="form-check form-switch card p-3 border-0 bg-light">
+                        <input class="form-check-input ms-0 me-2" type="checkbox" formControlName="isAnonymous"
+                            id="isAnonymousSwitch">
+                        <label class="form-check-label fw-bold" for="isAnonymousSwitch">¿Es esta encuesta
+                            anónima?</label>
+                        <div class="form-text mt-1">Si se desactiva, los alumnos deberán identificarse con su correo
+                            institucional (@campuscamara.es) para responder.</div>
+                    </div>
+                </div>
+
                 <hr class="my-5">
 
                 <div formArrayName="questions">

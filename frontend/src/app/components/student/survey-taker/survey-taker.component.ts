@@ -17,6 +17,7 @@ export class SurveyTakerComponent implements OnInit, OnDestroy {
     questionsPerPage = 3;
     timeLeft: number = 0;
     timerSubscription?: Subscription;
+    userEmail: string | null = null;
 
     constructor(
         private route: ActivatedRoute,
@@ -37,11 +38,18 @@ export class SurveyTakerComponent implements OnInit, OnDestroy {
                 next: (data) => {
                     this.survey = data;
                     this.initForm();
+                    if (!this.survey.isAnonymous) {
+                        this.handleIdentification();
+                    }
                     if (this.survey.timeLimit > 0) {
                         this.startTimer(this.survey.timeLimit * 60);
                     }
                 },
-                error: (err) => console.error(err)
+                error: (err) => {
+                    console.error(err);
+                    this.alertService.error('No se pudo cargar la encuesta');
+                    this.router.navigate(['/']);
+                }
             });
         }
     }
@@ -109,10 +117,27 @@ export class SurveyTakerComponent implements OnInit, OnDestroy {
         return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
     }
 
+    async handleIdentification() {
+        const email = await this.alertService.promptEmail('Esta encuesta requiere identificación institucional para participar.');
+        if (email) {
+            this.userEmail = email;
+        } else {
+            this.router.navigate(['/']); // Go back if they cancel (though allowOutsideClick is false)
+        }
+    }
+
     onSubmit() {
         if (this.responseForm.valid || this.timeLeft === 0) {
+            // Check identity if required
+            if (!this.survey.isAnonymous && !this.userEmail) {
+                this.alertService.error('Debes identificarte antes de enviar.');
+                this.handleIdentification();
+                return;
+            }
+
             const payload = {
                 surveyId: this.survey._id,
+                userEmail: this.userEmail,
                 answers: this.responseForm.value.answers
             };
             this.surveyService.submitResponse(payload).subscribe({

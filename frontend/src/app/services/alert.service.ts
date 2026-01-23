@@ -59,4 +59,28 @@ export class AlertService {
         });
         return result.isConfirmed;
     }
+
+    async promptEmail(message: string, title: string = 'Identificación Requerida'): Promise<string | null> {
+        const { value: email } = await Swal.fire({
+            title: title,
+            text: message,
+            input: 'email',
+            inputLabel: 'Tu correo institucional (@campuscamara.es)',
+            inputPlaceholder: 'ejemplo@campuscamara.es',
+            confirmButtonText: 'Verificar',
+            confirmButtonColor: '#3085d6',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            inputValidator: (value) => {
+                if (!value) {
+                    return '¡Debes introducir un correo!';
+                }
+                if (!value.endsWith('@campuscamara.es')) {
+                    return 'Solo se admiten correos de @campuscamara.es';
+                }
+                return null;
+            }
+        });
+        return email || null;
+    }
 }

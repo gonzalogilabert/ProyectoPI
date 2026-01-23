@@ -12,6 +12,7 @@ const SurveySchema = new mongoose.Schema({
     description: { type: String },
     questions: [QuestionSchema],
     timeLimit: { type: Number }, // in minutes, 0 for no limit
+    isAnonymous: { type: Boolean, default: true },
     createdAt: { type: Date, default: Date.now },
     expiresAt: { type: Date }
 });

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Survey = require('../models/Survey');
+const Response = require('../models/Response');
 
 // Create a survey
 router.post('/', async (req, res) => {
@@ -47,8 +48,11 @@ router.put('/:id', async (req, res) => {
 // Delete a survey
 router.delete('/:id', async (req, res) => {
     try {
-        await Survey.findByIdAndDelete(req.params.id);
-        res.json({ message: 'Survey deleted' });
+        const surveyId = req.params.id;
+        await Survey.findByIdAndDelete(surveyId);
+        // Cascading delete: remove all responses associated with this survey
+        await Response.deleteMany({ surveyId: surveyId });
+        res.json({ message: 'Survey and its responses deleted' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

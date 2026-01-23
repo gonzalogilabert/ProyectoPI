@@ -7,6 +7,7 @@ const AnswerSchema = new mongoose.Schema({
 
 const ResponseSchema = new mongoose.Schema({
     surveyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Survey', required: true },
+    userEmail: { type: String },
     answers: [AnswerSchema],
     submittedAt: { type: Date, default: Date.now }
 });

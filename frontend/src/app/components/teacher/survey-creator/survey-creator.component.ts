@@ -22,6 +22,7 @@ export class SurveyCreatorComponent implements OnInit {
             title: ['', [Validators.required, Validators.maxLength(50)]],
             description: ['', Validators.maxLength(250)],
             timeLimit: [0], // 0 means no limit
+            isAnonymous: [true],
             questions: this.fb.array([])
         });
     }
