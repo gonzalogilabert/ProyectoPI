@@ -7,9 +7,9 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGO_URI = process.env.MONGO_URI;
+const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
 if (!MONGO_URI) {
-    console.error('Falta MONGO_URI en el .env');
+    console.error('Falta MONGO_URI o MONGODB_URI en el .env');
     process.exit(1);
 }
 app.use(cors());
