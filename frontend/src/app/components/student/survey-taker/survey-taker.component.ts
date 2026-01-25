@@ -57,15 +57,27 @@ export class SurveyTakerComponent implements OnInit, OnDestroy {
     initForm() {
         const answers = this.responseForm.get('answers') as FormArray;
         this.survey.questions.forEach((q: any) => {
+            let validators = q.required ? [Validators.required] : [];
+
+            // For multi-choice, required means at least one must be selected
+            if (q.type === 'multi' && q.required) {
+                validators = [Validators.required, Validators.minLength(1)];
+            }
+
             answers.push(this.fb.group({
                 questionId: [q._id],
-                value: [q.type === 'multi' ? [] : '', q.required ? Validators.required : []]
+                value: [q.type === 'multi' ? [] : '', validators]
             }));
         });
     }
 
     get answers() {
         return this.responseForm.get('answers') as FormArray;
+    }
+
+    isFieldInvalid(index: number): boolean {
+        const control = this.answers.at(index).get('value');
+        return !!(control && control.invalid && (control.dirty || control.touched));
     }
 
     get questionsForCurrentPage() {
@@ -78,8 +90,23 @@ export class SurveyTakerComponent implements OnInit, OnDestroy {
     }
 
     nextPage() {
-        if (this.currentPage < this.totalPages - 1) {
+        const currentBatchStart = this.currentPage * this.questionsPerPage;
+        let batchIsValid = true;
+
+        // Check validation for current page before proceeding
+        for (let i = 0; i < this.questionsForCurrentPage.length; i++) {
+            const index = currentBatchStart + i;
+            const control = this.answers.at(index).get('value');
+            if (control?.invalid) {
+                control.markAsTouched();
+                batchIsValid = false;
+            }
+        }
+
+        if (batchIsValid && this.currentPage < this.totalPages - 1) {
             this.currentPage++;
+        } else if (!batchIsValid) {
+            this.alertService.error('Por favor, responde a las preguntas obligatorias antes de continuar.', 'Validación');
         }
     }
 
@@ -90,14 +117,19 @@ export class SurveyTakerComponent implements OnInit, OnDestroy {
     }
 
     onMultiChange(event: any, index: number, option: string) {
-        const valueArray = this.answers.at(index).get('value')?.value as string[];
+        const control = this.answers.at(index).get('value');
+        const valueArray = [...(control?.value || [])];
+
         if (event.target.checked) {
-            valueArray.push(option);
+            if (!valueArray.includes(option)) valueArray.push(option);
         } else {
             const idx = valueArray.indexOf(option);
             if (idx > -1) valueArray.splice(idx, 1);
         }
-        this.answers.at(index).get('value')?.setValue(valueArray);
+
+        control?.setValue(valueArray.length > 0 ? valueArray : null);
+        control?.markAsDirty();
+        control?.markAsTouched();
     }
 
     startTimer(seconds: number) {
@@ -106,7 +138,7 @@ export class SurveyTakerComponent implements OnInit, OnDestroy {
             if (this.timeLeft > 0) {
                 this.timeLeft--;
             } else {
-                this.onSubmit(); // Auto submit when time is up
+                this.forceSubmit(); // Auto submit when time is up
             }
         });
     }
@@ -126,8 +158,29 @@ export class SurveyTakerComponent implements OnInit, OnDestroy {
         }
     }
 
+    forceSubmit() {
+        // Submit regardless of validation when time is up
+        const payload = {
+            surveyId: this.survey._id,
+            userEmail: this.userEmail,
+            answers: this.responseForm.value.answers
+        };
+        this.surveyService.submitResponse(payload).subscribe({
+            next: () => {
+                this.alertService.success('El tiempo se ha agotado. Tu encuesta ha sido enviada.', 'Tiempo Agotado');
+                this.router.navigate(['/']);
+            },
+            error: (err) => console.error(err)
+        });
+    }
+
     onSubmit() {
-        if (this.responseForm.valid || this.timeLeft === 0) {
+        // Mark all as touched to show validation errors
+        this.answers.controls.forEach(control => {
+            control.get('value')?.markAsTouched();
+        });
+
+        if (this.responseForm.valid) {
             // Check identity if required
             if (!this.survey.isAnonymous && !this.userEmail) {
                 this.alertService.error('Debes identificarte antes de enviar.');

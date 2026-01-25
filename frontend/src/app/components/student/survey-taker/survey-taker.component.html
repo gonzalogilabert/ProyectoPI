@@ -29,6 +29,7 @@
                                 <!-- Text Type -->
                                 <div *ngIf="q.type === 'text'">
                                     <textarea formControlName="value" class="form-control" rows="3"
+                                        [class.is-invalid]="isFieldInvalid(currentPage * questionsPerPage + i)"
                                         placeholder="Escribe tu respuesta aquí..."></textarea>
                                 </div>
 
@@ -36,6 +37,7 @@
                                 <div *ngIf="q.type === 'test'">
                                     <div *ngFor="let option of q.options" class="form-check mb-2">
                                         <input class="form-check-input" type="radio" [value]="option"
+                                            [class.is-invalid]="isFieldInvalid(currentPage * questionsPerPage + i)"
                                             formControlName="value" [id]="'opt' + i + option">
                                         <label class="form-check-label" [for]="'opt' + i + option">{{option}}</label>
                                     </div>
@@ -45,6 +47,7 @@
                                 <div *ngIf="q.type === 'multi'">
                                     <div *ngFor="let option of q.options" class="form-check mb-2">
                                         <input class="form-check-input" type="checkbox"
+                                            [class.is-invalid]="isFieldInvalid(currentPage * questionsPerPage + i)"
                                             (change)="onMultiChange($event, currentPage * questionsPerPage + i, option)"
                                             [id]="'opt' + i + option">
                                         <label class="form-check-label" [for]="'opt' + i + option">{{option}}</label>
@@ -52,17 +55,25 @@
                                 </div>
 
                                 <!-- Scale Type -->
-                                <div *ngIf="q.type === 'scale'" class="d-flex justify-content-between px-3">
-                                    <div *ngFor="let val of [1,2,3,4,5]" class="text-center">
+                                <div *ngIf="q.type === 'scale'" class="d-flex justify-content-between px-3 flex-wrap">
+                                    <div *ngFor="let val of [1,2,3,4,5]" class="text-center mb-2">
                                         <input class="btn-check" type="radio" [value]="val" formControlName="value"
                                             [id]="'scale' + i + val">
                                         <label
                                             class="btn btn-outline-primary rounded-circle p-3 d-flex align-items-center justify-content-center"
+                                            [class.border-danger]="isFieldInvalid(currentPage * questionsPerPage + i)"
                                             style="width: 50px; height: 50px;" [for]="'scale' + i + val">{{val}}</label>
                                         <div class="small text-muted mt-1">{{val}}</div>
                                     </div>
                                 </div>
+
+                                <!-- Error message -->
+                                <div class="text-danger small mt-2 animated fadeIn" 
+                                    *ngIf="isFieldInvalid(currentPage * questionsPerPage + i)">
+                                    <i class="bi bi-exclamation-circle me-1"></i> Esta pregunta es obligatoria.
+                                </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
