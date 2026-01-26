@@ -17,23 +17,46 @@
         </div>
     </div>
 
-    <div class="card shadow-sm border-0">
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <button class="nav-link" [class.active]="activeTab === 'responses'" (click)="activeTab = 'responses'">
+                <i class="bi bi-list-ul me-2"></i>Respuestas Individuales
+            </button>
+        </li>
+        <li class="nav-item" *ngIf="!survey.isAnonymous">
+            <button class="nav-link" [class.active]="activeTab === 'byUser'" (click)="activeTab = 'byUser'">
+                <i class="bi bi-person-lines-fill me-2"></i>Por Usuario
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" [class.active]="activeTab === 'stats'" (click)="activeTab = 'stats'">
+                <i class="bi bi-bar-chart-line me-2"></i>Estadísticas
+            </button>
+        </li>
+    </ul>
+
+    <!-- Individual Responses View -->
+    <div class="card shadow-sm border-0" *ngIf="activeTab === 'responses'">
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead class="bg-light">
                     <tr>
                         <th class="ps-4">Fecha de Envío</th>
+                        <th *ngIf="!survey.isAnonymous">Correo</th>
                         <th *ngFor="let q of survey.questions">{{q.text}}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngIf="responses.length === 0">
-                        <td [attr.colspan]="survey.questions.length + 1" class="text-center py-5 text-muted">
+                        <td [attr.colspan]="survey.questions.length + (survey.isAnonymous ? 1 : 2)"
+                            class="text-center py-5 text-muted">
                             Todavía no hay respuestas para esta encuesta.
                         </td>
                     </tr>
                     <tr *ngFor="let res of responses">
                         <td class="ps-4 small text-muted">{{res.submittedAt | date:'short'}}</td>
+                        <td *ngIf="!survey.isAnonymous" class="small text-muted">{{res.userEmail || 'N/A'}}</td>
                         <td *ngFor="let q of survey.questions">
                             <span *ngIf="q.type !== 'multi'">{{getAnswerForQuestion(res, q._id)}}</span>
                             <div *ngIf="q.type === 'multi'">
@@ -46,6 +69,91 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <!-- By User View -->
+    <div *ngIf="activeTab === 'byUser'">
+        <div *ngIf="getUserEmails().length === 0" class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            No hay respuestas para mostrar agrupadas por usuario.
+        </div>
+
+        <div *ngFor="let email of getUserEmails(); let i = index" class="card shadow-sm border-0 mb-3">
+            <div class="card-header bg-white" style="cursor: pointer;" (click)="toggleUserExpansion(email)">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>
+                        <i class="bi bi-person-circle me-2 text-primary-custom"></i>
+                        <strong>{{email}}</strong>
+                        <span class="badge bg-secondary ms-2">{{responsesByUser[email].length}} respuesta(s)</span>
+                    </span>
+                    <i class="bi" [class.bi-chevron-down]="!isUserExpanded(email)"
+                        [class.bi-chevron-up]="isUserExpanded(email)"></i>
+                </div>
+            </div>
+
+            <div class="card-body" *ngIf="isUserExpanded(email)">
+                <div *ngFor="let res of responsesByUser[email]; let j = index" class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="text-muted mb-0">
+                            <i class="bi bi-calendar-event me-1"></i>
+                            Respuesta #{{j + 1}} - {{res.submittedAt | date:'short'}}
+                        </h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 40%">Pregunta</th>
+                                    <th style="width: 60%">Respuesta</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let q of survey.questions">
+                                    <td><strong>{{q.text}}</strong></td>
+                                    <td>
+                                        <span *ngIf="q.type !== 'multi'">{{getAnswerForQuestion(res, q._id)}}</span>
+                                        <div *ngIf="q.type === 'multi'">
+                                            <span class="badge bg-light text-dark border me-1"
+                                                *ngFor="let val of getAnswerForQuestion(res, q._id)">
+                                                {{val}}
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <hr *ngIf="j < responsesByUser[email].length - 1">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics View -->
+    <div *ngIf="activeTab === 'stats'">
+        <div class="card shadow-sm border-0 mb-4" *ngFor="let q of survey.questions">
+            <div class="card-header bg-white py-3">
+                <h5 class="card-title mb-0">{{q.text}}</h5>
+                <small class="text-muted">Tipo: {{q.type}}</small>
+            </div>
+            <div class="card-body">
+                <div *ngIf="q.type === 'text'" class="alert alert-secondary mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Esta es una pregunta de texto libre. <a href="javascript:void(0)"
+                        (click)="activeTab = 'responses'">Ver respuestas individuales</a>
+                </div>
+
+                <div *ngIf="q.type !== 'text' && chartDataMap[q._id]" class="chart-container"
+                    style="position: relative; height:300px; width:100%">
+                    <canvas baseChart [data]="chartDataMap[q._id]" [options]="barChartOptions" [type]="'bar'">
+                    </canvas>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="survey.questions.length === 0" class="alert alert-info">
+            No hay preguntas en esta encuesta para mostrar estadísticas.
         </div>
     </div>
 </div>

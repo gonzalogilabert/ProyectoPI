@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const AnswerSchema = new mongoose.Schema({
     questionId: { type: String, required: true },
-    value: { type: mongoose.Schema.Types.Mixed, required: true } // Can be string or array of strings
+    value: { type: mongoose.Schema.Types.Mixed } // Can be string or array of strings, optional if question not required
 });
 
 const ResponseSchema = new mongoose.Schema({
