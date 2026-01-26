@@ -4,6 +4,7 @@ import { SurveyService } from '../../../services/survey.service';
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 @Component({
     selector: 'app-response-viewer',
@@ -52,10 +53,19 @@ export class ResponseViewerComponent implements OnInit {
 
         if (!this.survey) return;
 
-        const head = [['Fecha', ...this.survey.questions.map((q: any) => q.text)]];
+        // Include email column if survey is not anonymous
+        const head = this.survey.isAnonymous
+            ? [['Fecha', ...this.survey.questions.map((q: any) => q.text)]]
+            : [['Fecha', 'Correo', ...this.survey.questions.map((q: any) => q.text)]];
 
         const body = this.responses.map((res: any) => {
             const row = [new Date(res.submittedAt).toLocaleDateString()];
+
+            // Add email if survey is not anonymous
+            if (!this.survey.isAnonymous) {
+                row.push(res.userEmail || 'N/A');
+            }
+
             this.survey.questions.forEach((q: any) => {
                 let answer = this.getAnswerForQuestion(res, q._id);
                 if (Array.isArray(answer)) {
@@ -73,6 +83,54 @@ export class ResponseViewerComponent implements OnInit {
         });
 
         doc.save(`respuestas_${this.survey.title.replace(/\s+/g, '_')}.pdf`);
+    }
+
+    exportToExcel() {
+        if (!this.survey) return;
+
+        // Prepare headers - include email if survey is not anonymous
+        const headers = this.survey.isAnonymous
+            ? ['Fecha', ...this.survey.questions.map((q: any) => q.text)]
+            : ['Fecha', 'Correo', ...this.survey.questions.map((q: any) => q.text)];
+
+        // Prepare data rows
+        const data = this.responses.map((res: any) => {
+            const row = [new Date(res.submittedAt).toLocaleDateString()];
+
+            // Add email if survey is not anonymous
+            if (!this.survey.isAnonymous) {
+                row.push(res.userEmail || 'N/A');
+            }
+
+            this.survey.questions.forEach((q: any) => {
+                let answer = this.getAnswerForQuestion(res, q._id);
+                if (Array.isArray(answer)) {
+                    answer = answer.join(', ');
+                }
+                row.push(answer);
+            });
+            return row;
+        });
+
+        // Create worksheet
+        const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([headers, ...data]);
+
+        // Auto-size columns
+        const colWidths = headers.map((header, i) => {
+            const maxLength = Math.max(
+                header.length,
+                ...data.map(row => String(row[i] || '').length)
+            );
+            return { wch: Math.min(maxLength + 2, 50) }; // Max width of 50
+        });
+        ws['!cols'] = colWidths;
+
+        // Create workbook and add worksheet
+        const wb: XLSX.WorkBook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Respuestas');
+
+        // Generate and download file
+        XLSX.writeFile(wb, `respuestas_${this.survey.title.replace(/\s+/g, '_')}.xlsx`);
     }
 }
 

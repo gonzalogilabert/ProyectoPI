@@ -5,8 +5,11 @@
             <p class="text-white">Total de respuestas recibidas: {{responses.length}}</p>
         </div>
         <div>
-            <button class="btn btn-success me-3" (click)="exportToPdf()">
+            <button class="btn btn-danger me-3" (click)="exportToPdf()">
                 <i class="bi bi-file-earmark-pdf me-2"></i>Exportar PDF
+            </button>
+            <button class="btn btn-success me-3" (click)="exportToExcel()">
+                <i class="bi bi-file-earmark-excel me-2"></i>Exportar Excel
             </button>
             <button class="btn btn-primary-custom" routerLink="/list">
                 <i class="bi bi-arrow-left me-2"></i>Volver a la lista
