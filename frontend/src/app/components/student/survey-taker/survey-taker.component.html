@@ -17,67 +17,155 @@
             </div>
 
             <form [formGroup]="responseForm" (ngSubmit)="onSubmit()">
+                <!-- Contenedor del array de respuestas - OBLIGATORIO para el binding -->
                 <div formArrayName="answers">
-                    <div *ngFor="let q of questionsForCurrentPage; let i=index" class="card mb-4 shadow-sm border-0">
+                    <div *ngFor="let q of survey.questions; let i=index; trackBy: trackByQuestion"
+                        class="card mb-4 shadow-sm border-0">
                         <div class="card-body p-4">
-                            <h5 class="card-title mb-4">
-                                {{q.text}}
+                            <h5 class="card-title mb-1 fw-bold">
+                                <span class="text-primary-custom me-2">{{i + 1}}.</span>{{q.text}}
                                 <span *ngIf="q.required" class="text-danger">*</span>
                             </h5>
+                            <!-- Descripción de la pregunta -->
+                            <p *ngIf="q.description" class="text-muted small mb-4">{{q.description}}</p>
 
-                            <div [formGroupName]="currentPage * questionsPerPage + i">
-                                <!-- Text Type -->
-                                <div *ngIf="q.type === 'text'">
-                                    <textarea formControlName="value" class="form-control" rows="3"
-                                        [class.is-invalid]="isFieldInvalid(currentPage * questionsPerPage + i)"
-                                        placeholder="Escribe tu respuesta aquí..."></textarea>
+                            <!-- Grupo de formulario para esta pregunta específica -->
+                            <div [formGroupName]="i" *ngIf="answers.at(i)">
+
+                                <!-- Respuestas de Texto -->
+                                <div *ngIf="q.type === 'short'" class="mt-2">
+                                    <input type="text" formControlName="value" class="form-control"
+                                        [class.is-invalid]="isFieldInvalid(i)" placeholder="Tu respuesta corta...">
                                 </div>
 
-                                <!-- Test (Single) Type -->
-                                <div *ngIf="q.type === 'test'">
-                                    <div *ngFor="let option of q.options" class="form-check mb-2">
-                                        <input class="form-check-input" type="radio" [value]="option"
-                                            [class.is-invalid]="isFieldInvalid(currentPage * questionsPerPage + i)"
-                                            formControlName="value" [id]="'opt' + i + option">
-                                        <label class="form-check-label" [for]="'opt' + i + option">{{option}}</label>
+                                <div *ngIf="q.type === 'paragraph'" class="mt-2">
+                                    <textarea formControlName="value" class="form-control" rows="4"
+                                        [class.is-invalid]="isFieldInvalid(i)"
+                                        placeholder="Tu respuesta detallada..."></textarea>
+                                </div>
+
+                                <!-- Varias opciones (Radio) -->
+                                <div *ngIf="q.type === 'test'" class="mt-2">
+                                    <div *ngFor="let option of q.options; let j=index; trackBy: trackByOption"
+                                        class="form-check custom-radio mb-3">
+                                        <input class="form-check-input" type="radio"
+                                            [checked]="answers.at(i).get('value')?.value === option"
+                                            (click)="answers.at(i).get('value')?.setValue(option)"
+                                            [id]="'radio-' + q._id + '-' + j" [attr.name]="'group-' + q._id">
+                                        <label class="form-check-label w-100 ps-2 py-1 cursor-pointer"
+                                            [for]="'radio-' + q._id + '-' + j">
+                                            {{option}}
+                                        </label>
                                     </div>
                                 </div>
 
-                                <!-- multi Type -->
-                                <div *ngIf="q.type === 'multi'">
-                                    <div *ngFor="let option of q.options" class="form-check mb-2">
+                                <!-- Casillas (Checkboxes) -->
+                                <div *ngIf="q.type === 'multi'" class="mt-2">
+                                    <div *ngFor="let option of q.options; let j=index; trackBy: trackByOption"
+                                        class="form-check mb-3">
                                         <input class="form-check-input" type="checkbox"
-                                            [class.is-invalid]="isFieldInvalid(currentPage * questionsPerPage + i)"
-                                            (change)="onMultiChange($event, currentPage * questionsPerPage + i, option)"
-                                            [id]="'opt' + i + option">
-                                        <label class="form-check-label" [for]="'opt' + i + option">{{option}}</label>
+                                            [checked]="answers.at(i).get('value')?.value?.includes(option)"
+                                            (change)="onMultiChange($event, i, option)"
+                                            [id]="'check-' + q._id + '-' + j">
+                                        <label class="form-check-label w-100 cursor-pointer ps-2 py-1"
+                                            [for]="'check-' + q._id + '-' + j">
+                                            {{option}}
+                                        </label>
                                     </div>
                                 </div>
 
-                                <!-- Scale Type -->
-                                <div *ngIf="q.type === 'scale'" class="d-flex justify-content-between px-3 flex-wrap">
-                                    <div *ngFor="let val of [1,2,3,4,5]" class="text-center mb-2">
-                                        <input class="btn-check" type="radio" [value]="val" formControlName="value"
-                                            [id]="'scale' + i + val">
-                                        <label
-                                            class="btn btn-outline-primary rounded-circle p-3 d-flex align-items-center justify-content-center"
-                                            [class.border-danger]="isFieldInvalid(currentPage * questionsPerPage + i)"
-                                            style="width: 50px; height: 50px;" [for]="'scale' + i + val">{{val}}</label>
-                                        <div class="small text-muted mt-1">{{val}}</div>
+                                <!-- Desplegable -->
+                                <div *ngIf="q.type === 'dropdown'" class="mt-2">
+                                    <select formControlName="value" class="form-select"
+                                        [class.is-invalid]="isFieldInvalid(i)">
+                                        <option value="" disabled selected>Elige una opción...</option>
+                                        <option *ngFor="let option of q.options" [value]="option">{{option}}</option>
+                                    </select>
+                                </div>
+
+                                <!-- Escala lineal y Calificación -->
+                                <div *ngIf="q.type === 'scale' || q.type === 'rating'" class="mt-3">
+                                    <div
+                                        class="d-flex align-items-center justify-content-center flex-wrap gap-2 text-center">
+                                        <span *ngIf="q.options?.[0]"
+                                            class="small text-muted me-2">{{q.options[0]}}</span>
+                                        <div *ngFor="let val of [1,2,3,4,5]" class="star-rating">
+                                            <input class="btn-check" type="radio"
+                                                [checked]="answers.at(i).get('value')?.value === val"
+                                                (click)="answers.at(i).get('value')?.setValue(val)"
+                                                [id]="'scale-' + q._id + '-' + val" [attr.name]="'scale-' + q._id">
+                                            <label
+                                                class="btn btn-outline-primary shadow-sm d-flex align-items-center justify-content-center"
+                                                [style.width.px]="q.type === 'rating' ? 45 : 40"
+                                                [style.height.px]="q.type === 'rating' ? 45 : 40"
+                                                [for]="'scale-' + q._id + '-' + val">
+                                                <i *ngIf="q.type === 'rating'" class="bi"
+                                                    [class.bi-star-fill]="answers.at(i).get('value')?.value >= val"
+                                                    [class.bi-star]="answers.at(i).get('value')?.value < val"></i>
+                                                <span *ngIf="q.type === 'scale'">{{val}}</span>
+                                            </label>
+                                        </div>
+                                        <span *ngIf="q.options?.[1]"
+                                            class="small text-muted ms-2">{{q.options[1]}}</span>
                                     </div>
                                 </div>
 
-                                <!-- Error message -->
-                                <div class="text-danger small mt-2 animated fadeIn" 
-                                    *ngIf="isFieldInvalid(currentPage * questionsPerPage + i)">
-                                    <i class="bi bi-exclamation-circle me-1"></i> Esta pregunta es obligatoria.
+                                <!-- Cuadrículas -->
+                                <div *ngIf="q.type === 'grid_radio' || q.type === 'grid_check'"
+                                    class="mt-2 table-responsive">
+                                    <table class="table table-striped table-hover align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th class="border-0"></th>
+                                                <th *ngFor="let col of q.columns"
+                                                    class="text-center border-0 small fw-bold">{{col}}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let row of q.rows; let rIdx = index">
+                                                <td class="small fw-normal border-0">{{row}}</td>
+                                                <td *ngFor="let col of q.columns" class="text-center border-0">
+                                                    <input [type]="q.type === 'grid_radio' ? 'radio' : 'checkbox'"
+                                                        class="form-check-input" [name]="'grid-' + q._id + '-' + rIdx"
+                                                        [checked]="isGridChecked(i, row, col, q.type === 'grid_check')"
+                                                        (change)="onGridChange(i, row, col, q.type === 'grid_check', $event)">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Subir Archivo -->
+                                <div *ngIf="q.type === 'file'" class="mt-2">
+                                    <div class="border rounded p-4 text-center bg-light">
+                                        <i class="bi bi-cloud-arrow-up fs-1 text-primary"></i>
+                                        <p class="mb-0 mt-2">Haz clic aquí o arrastra un archivo</p>
+                                        <input type="file" class="form-control mt-3"
+                                            [class.is-invalid]="isFieldInvalid(i)" (change)="onFileSelected($event, i)">
+                                        <div class="form-text mt-1">Máximo 10MB</div>
+                                    </div>
+                                </div>
+
+                                <!-- Fecha y Hora -->
+                                <div *ngIf="q.type === 'date'" class="mt-2">
+                                    <input type="date" formControlName="value" class="form-control"
+                                        [class.is-invalid]="isFieldInvalid(i)">
+                                </div>
+                                <div *ngIf="q.type === 'time'" class="mt-2">
+                                    <input type="time" formControlName="value" class="form-control"
+                                        [class.is-invalid]="isFieldInvalid(i)">
+                                </div>
+
+                                <!-- Mensaje de Error -->
+                                <div class="text-danger small mt-3" *ngIf="isFieldInvalid(i)">
+                                    <i class="bi bi-exclamation-triangle-fill me-1"></i> Esta pregunta es obligatoria.
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
 
+                <!-- Controles de navegación -->
                 <div class="d-flex justify-content-between mt-4 mb-5">
                     <button type="button" class="btn btn-outline-secondary btn-lg" (click)="prevPage()"
                         [disabled]="currentPage === 0">

@@ -8,6 +8,7 @@ import { SurveyTakerComponent } from './components/student/survey-taker/survey-t
 const routes: Routes = [
   { path: '', redirectTo: '/list', pathMatch: 'full' },
   { path: 'create', component: SurveyCreatorComponent },
+  { path: 'edit/:id', component: SurveyCreatorComponent },
   { path: 'list', component: SurveyListComponent },
   { path: 'responses/:id', component: ResponseViewerComponent },
   { path: 'survey/:id', component: SurveyTakerComponent },

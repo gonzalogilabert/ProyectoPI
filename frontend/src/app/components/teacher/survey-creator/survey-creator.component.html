@@ -1,7 +1,10 @@
 <div class="container mt-5">
     <div class="card shadow-sm border-0">
         <div class="card-header bg-dark-custom text-white p-4">
-            <h2 class="mb-0"><i class="bi bi-plus-circle-fill me-2"></i>Crear Nueva Encuesta</h2>
+            <h2 class="mb-0">
+                <i class="bi me-2" [class.bi-plus-circle-fill]="!isEditMode" [class.bi-pencil-square]="isEditMode"></i>
+                {{isEditMode ? 'Editar Encuesta' : 'Nueva Encuesta'}}
+            </h2>
         </div>
         <div class="card-body p-4">
             <form [formGroup]="surveyForm" (ngSubmit)="onSubmit()">
@@ -41,59 +44,187 @@
 
                 <div formArrayName="questions">
                     <div *ngFor="let question of questions.controls; let i=index" [formGroupName]="i"
-                        class="card mb-4 border-start border-4 border-primary-custom">
+                        class="card mb-4 border-start border-4 border-primary-custom shadow-sm">
                         <div class="card-body bg-white">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="text-primary-custom mb-0">Pregunta #{{i + 1}}</h5>
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="d-flex align-items-center">
+                                    <h5 class="text-primary-custom mb-0 me-3">Pregunta #{{i + 1}}</h5>
+                                    <!-- Botones de reordenar -->
+                                    <div class="btn-group btn-group-sm me-2">
+                                        <button type="button" class="btn btn-outline-secondary"
+                                            (click)="moveQuestion(i, 'up')" [disabled]="i === 0">
+                                            <i class="bi bi-chevron-up"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary"
+                                            (click)="moveQuestion(i, 'down')" [disabled]="i === questions.length - 1">
+                                            <i class="bi bi-chevron-down"></i>
+                                        </button>
+                                    </div>
+                                    <!-- Botón de duplicar -->
+                                    <button type="button" class="btn btn-outline-primary btn-sm"
+                                        (click)="duplicateQuestion(i)" title="Duplicar">
+                                        <i class="bi bi-files"></i>
+                                    </button>
+                                </div>
                                 <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeQuestion(i)"
                                     *ngIf="questions.length > 1">
-                                    <i class="bi bi-trash-fill"></i> Eliminar
+                                    <i class="bi bi-trash-fill"></i>
                                 </button>
                             </div>
 
                             <div class="row g-3">
                                 <div class="col-md-7">
                                     <label class="form-label small fw-bold">Texto de la Pregunta *</label>
-                                    <input type="text" formControlName="text" class="form-control">
+                                    <input type="text" formControlName="text" class="form-control"
+                                        placeholder="Escribe tu pregunta...">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label small fw-bold">Tipo de Respuesta *</label>
                                     <select formControlName="type" class="form-select" (change)="onTypeChange(i)">
-                                        <option value="text">Texto Libre</option>
-                                        <option value="test">Opción Única (Test)</option>
-                                        <option value="multi">Multirespuesta</option>
-                                        <option value="scale">Escala (1-5)</option>
+                                        <optgroup label="Texto">
+                                            <option value="short">Respuesta corta</option>
+                                            <option value="paragraph">Párrafo</option>
+                                        </optgroup>
+                                        <optgroup label="Selección">
+                                            <option value="test">Varias opciones (Radio)</option>
+                                            <option value="multi">Casillas (Checkboxes)</option>
+                                            <option value="dropdown">Desplegable</option>
+                                        </optgroup>
+                                        <optgroup label="Avanzado">
+                                            <option value="file">Subir archivos</option>
+                                            <option value="scale">Escala lineal (1-5)</option>
+                                            <option value="rating">Calificación (Estrellas)</option>
+                                        </optgroup>
+                                        <optgroup label="Cuadrículas">
+                                            <option value="grid_radio">Cuadrícula de varias opciones</option>
+                                            <option value="grid_check">Cuadrícula de casillas</option>
+                                        </optgroup>
+                                        <optgroup label="Fecha y Hora">
+                                            <option value="date">Fecha</option>
+                                            <option value="time">Hora</option>
+                                        </optgroup>
                                     </select>
                                 </div>
                                 <div class="col-md-2 d-flex align-items-end">
-                                    <div class="form-check mb-2">
+                                    <div class="form-check form-switch mb-2">
                                         <input class="form-check-input" type="checkbox" formControlName="required"
                                             [id]="'req' + i">
-                                        <label class="form-check-label small" [for]="'req' + i">Obligatoria</label>
+                                        <label class="form-check-label small fw-bold"
+                                            [for]="'req' + i">Obligatoria</label>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Options for test/multi -->
-                            <div *ngIf="question.get('type')?.value !== 'text' && question.get('type')?.value !== 'scale'"
-                                class="mt-4 ps-4 border-start">
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold text-muted">Descripción / Ayuda</label>
+                                    <input type="text" formControlName="description"
+                                        class="form-control form-control-sm" placeholder="Ej: Máximo 200 palabras.">
+                                </div>
+                            </div>
+
+                            <!-- Opciones Estándar (Radio, Check, Dropdown) -->
+                            <div *ngIf="['test', 'multi', 'dropdown'].includes(question.get('type')?.value)"
+                                class="mt-4 ps-4 border-start border-2">
                                 <label class="form-label small fw-bold mb-2">Opciones de Respuesta *</label>
                                 <div formArrayName="options">
                                     <div *ngFor="let option of getOptions(i).controls; let j=index"
                                         class="input-group mb-2 w-75">
-                                        <input type="text" [formControlName]="j" class="form-control form-control-sm"
-                                            placeholder="Opción {{j+1}}">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                        <span class="input-group-text bg-light border-end-0"><i
+                                                class="bi bi-circle small"></i></span>
+                                        <input type="text" [formControlName]="j"
+                                            class="form-control form-control-sm border-start-0"
+                                            placeholder="Añadir opción">
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
                                             (click)="removeOption(i, j)" [disabled]="getOptions(i).length <= 1">
-                                            <i class="bi bi-x"></i>
+                                            <i class="bi bi-x-lg"></i>
                                         </button>
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-link text-primary-custom p-0 mt-1"
+                                    <button type="button"
+                                        class="btn btn-sm btn-link text-primary-custom p-0 mt-1 text-decoration-none"
                                         (click)="addOption(i)">
-                                        <i class="bi bi-plus"></i> Añadir opción
+                                        <i class="bi bi-plus-circle me-1"></i> Añadir opción
                                     </button>
                                 </div>
                             </div>
+
+                            <!-- Escala Lineal / Calificación (Etiquetas) -->
+                            <div *ngIf="['scale', 'rating'].includes(question.get('type')?.value)"
+                                class="mt-4 ps-4 border-start border-2">
+                                <label class="form-label small fw-bold mb-2">Etiquetas (opcional)</label>
+                                <div formArrayName="options" class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <input type="text" [formControlName]="0" class="form-control form-control-sm"
+                                            placeholder="Etiqueta para el valor mínimo">
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <input type="text" [formControlName]="1" class="form-control form-control-sm"
+                                            placeholder="Etiqueta para el valor máximo">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cuadrículas (Filas y Columnas) -->
+                            <div *ngIf="['grid_radio', 'grid_check'].includes(question.get('type')?.value)"
+                                class="mt-4 ps-4 border-start border-2">
+                                <div class="row">
+                                    <!-- Filas -->
+                                    <div class="col-md-6 border-end">
+                                        <label class="form-label small fw-bold mb-2">Filas (Preguntas de la
+                                            cuadrícula)</label>
+                                        <div formArrayName="rows">
+                                            <div *ngFor="let row of getRows(i).controls; let j=index"
+                                                class="input-group mb-2">
+                                                <span class="input-group-text bg-light border-end-0">{{j+1}}</span>
+                                                <input type="text" [formControlName]="j"
+                                                    class="form-control form-control-sm border-start-0"
+                                                    placeholder="Nombre de la fila">
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                                    (click)="removeRow(i, j)" [disabled]="getRows(i).length <= 1">
+                                                    <i class="bi bi-x"></i>
+                                                </button>
+                                            </div>
+                                            <button type="button"
+                                                class="btn btn-sm btn-link text-primary-custom p-0 mt-1 text-decoration-none"
+                                                (click)="addRow(i)">
+                                                <i class="bi bi-plus-circle me-1"></i> Añadir fila
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- Columnas -->
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold mb-2">Columnas (Opciones de
+                                            respuesta)</label>
+                                        <div formArrayName="columns">
+                                            <div *ngFor="let col of getColumns(i).controls; let k=index"
+                                                class="input-group mb-2">
+                                                <span class="input-group-text bg-light border-end-0"><i
+                                                        class="bi bi-circle small"></i></span>
+                                                <input type="text" [formControlName]="k"
+                                                    class="form-control form-control-sm border-start-0"
+                                                    placeholder="Nombre de la columna">
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                                    (click)="removeColumn(i, k)" [disabled]="getColumns(i).length <= 1">
+                                                    <i class="bi bi-x"></i>
+                                                </button>
+                                            </div>
+                                            <button type="button"
+                                                class="btn btn-sm btn-link text-primary-custom p-0 mt-1 text-decoration-none"
+                                                (click)="addColumn(i)">
+                                                <i class="bi bi-plus-circle me-1"></i> Añadir columna
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Subir Archivos -->
+                            <div *ngIf="question.get('type')?.value === 'file'"
+                                class="mt-4 ps-4 border-start border-2 text-muted small">
+                                <i class="bi bi-info-circle me-1"></i> Los archivos se subirán al servidor
+                                institucional. El límite por archivo es de 10MB.
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -102,9 +233,14 @@
                     <button type="button" class="btn btn-light border" (click)="addQuestion()">
                         <i class="bi bi-plus-lg me-2"></i>Añadir Pregunta
                     </button>
-                    <button type="submit" class="btn btn-primary-custom btn-lg mt-3">
-                        <i class="bi bi-check-circle-fill me-2"></i>Guardar Encuesta
+                    <button type="submit" class="btn btn-primary-custom btn-lg shadow-sm"
+                        [disabled]="surveyForm.invalid">
+                        <i class="bi me-2" [class.bi-save]="isEditMode" [class.bi-check-circle-fill]="!isEditMode"></i>
+                        {{isEditMode ? 'Actualizar Encuesta' : 'Guardar y Publicar Encuesta'}}
                     </button>
+                    <p class="text-center text-muted small mt-2">
+                        * Todos los campos marcados con asterisco son obligatorios.
+                    </p>
                 </div>
             </form>
         </div>

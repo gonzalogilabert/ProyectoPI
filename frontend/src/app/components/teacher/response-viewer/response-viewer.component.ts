@@ -16,7 +16,7 @@ export class ResponseViewerComponent implements OnInit {
     survey: any;
     responses: any[] = [];
 
-    activeTab: string = 'responses';
+    activeTab: string = 'byUser';
     questionStats: any = {};
     responsesByUser: { [email: string]: any[] } = {};
     expandedUsers: Set<string> = new Set();
@@ -75,60 +75,67 @@ export class ResponseViewerComponent implements OnInit {
         if (!this.survey || !this.responses) return;
 
         this.survey.questions.forEach((q: any) => {
-            if (q.type !== 'text') {
-                const stats: any = {};
-                if (q.options) {
+            // Solo calculamos estadísticas para tipos que no sean texto libre, fecha o hora
+            // Fecha y hora es mejor verlas en la tabla individual
+            const chartTypes = ['test', 'multi', 'scale', 'dropdown', 'rating'];
+
+            if (chartTypes.includes(q.type)) {
+                const stats = new Map<string, number>();
+
+                // 1. Inicializar las opciones esperadas
+                if (q.type === 'scale') {
+                    ['1', '2', '3', '4', '5'].forEach(v => stats.set(v, 0));
+                } else if (q.options && q.options.length > 0) {
                     q.options.forEach((opt: string) => {
-                        stats[opt] = 0;
+                        if (opt) stats.set(opt.toString().trim(), 0);
                     });
                 }
 
+                // 2. Procesar respuestas
                 this.responses.forEach((res: any) => {
-                    const answer = this.getAnswerForQuestion(res, q._id);
-                    if (Array.isArray(answer)) {
-                        answer.forEach((val: string) => {
-                            if (stats[val] !== undefined) {
-                                stats[val]++;
-                            } else {
-                                stats[val] = (stats[val] || 0) + 1;
+                    const val = this.getAnswerForQuestion(res, q._id);
+
+                    if (Array.isArray(val)) {
+                        val.forEach((item: any) => {
+                            if (item !== undefined && item !== null) {
+                                const normalized = item.toString().trim();
+                                if (normalized && normalized !== '-') {
+                                    stats.set(normalized, (stats.get(normalized) || 0) + 1);
+                                }
                             }
                         });
-                    } else if (answer && answer !== '-') {
-                        if (stats[answer] !== undefined) {
-                            stats[answer]++;
-                        } else {
-                            stats[answer] = (stats[answer] || 0) + 1;
+                    } else if (val !== undefined && val !== null && val !== '-') {
+                        const normalized = val.toString().trim();
+                        if (normalized) {
+                            stats.set(normalized, (stats.get(normalized) || 0) + 1);
                         }
                     }
                 });
 
-                this.questionStats[q._id] = stats;
+                // 3. Generar Chart
+                const labels = Array.from(stats.keys());
+                const data = Array.from(stats.values());
 
-                const labels = Object.keys(stats);
-                const data = Object.values(stats) as number[];
+                this.questionStats[q._id] = Object.fromEntries(stats);
+
+                const backgroundColors = labels.map((_, i) => [
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)',
+                    'rgba(201, 203, 207, 0.7)'
+                ][i % 7]);
 
                 this.chartDataMap[q._id] = {
                     labels: labels,
                     datasets: [
                         {
                             data: data,
-                            label: 'Cantidad',
-                            backgroundColor: [
-                                'rgba(54, 162, 235, 0.6)',
-                                'rgba(255, 99, 132, 0.6)',
-                                'rgba(75, 192, 192, 0.6)',
-                                'rgba(255, 206, 86, 0.6)',
-                                'rgba(153, 102, 255, 0.6)',
-                                'rgba(255, 159, 64, 0.6)'
-                            ],
-                            borderColor: [
-                                'rgba(54, 162, 235, 1)',
-                                'rgba(255, 99, 132, 1)',
-                                'rgba(75, 192, 192, 1)',
-                                'rgba(255, 206, 86, 1)',
-                                'rgba(153, 102, 255, 1)',
-                                'rgba(255, 159, 64, 1)'
-                            ],
+                            label: 'Votos',
+                            backgroundColor: backgroundColors,
+                            borderColor: backgroundColors.map(c => c.replace('0.7', '1')),
                             borderWidth: 1
                         }
                     ]
@@ -137,30 +144,38 @@ export class ResponseViewerComponent implements OnInit {
         });
     }
 
+    isChartable(type: string): boolean {
+        return ['test', 'multi', 'scale', 'dropdown', 'rating'].includes(type);
+    }
+
     getObjectKeys(obj: any): string[] {
         return obj ? Object.keys(obj) : [];
     }
 
     groupResponsesByUser() {
         this.responsesByUser = {};
-        if (!this.survey || this.survey.isAnonymous) return;
+        if (!this.survey) return;
 
-        this.responses.forEach((res: any) => {
-            const email = res.userEmail || 'Sin email';
+        this.responses.forEach((res: any, index: number) => {
+            const email = (this.survey.isAnonymous || !res.userEmail)
+                ? `Respuesta #${index + 1}`
+                : res.userEmail;
+
             if (!this.responsesByUser[email]) {
                 this.responsesByUser[email] = [];
             }
             this.responsesByUser[email].push(res);
         });
-    }
 
-    getUserEmails(): string[] {
+        // Expand the first user by default if emails exist
         const emails = Object.keys(this.responsesByUser).sort();
-        // Expand the first user by default
         if (emails.length > 0 && this.expandedUsers.size === 0) {
             this.expandedUsers.add(emails[0]);
         }
-        return emails;
+    }
+
+    getUserEmails(): string[] {
+        return Object.keys(this.responsesByUser).sort();
     }
 
     toggleUserExpansion(email: string) {
@@ -178,6 +193,17 @@ export class ResponseViewerComponent implements OnInit {
     getAnswerForQuestion(response: any, questionId: string): any {
         const answer = response.answers.find((a: any) => a.questionId === questionId);
         return answer ? answer.value : '-';
+    }
+
+    formatAnswer(val: any): string {
+        if (val === undefined || val === null || val === '-') return '-';
+        if (Array.isArray(val)) return val.join(', ');
+        if (typeof val === 'object') {
+            return Object.entries(val)
+                .map(([row, col]) => `${row}: ${Array.isArray(col) ? col.join(', ') : col}`)
+                .join(' | ');
+        }
+        return val.toString();
     }
 
     exportToPdf() {
@@ -202,11 +228,8 @@ export class ResponseViewerComponent implements OnInit {
             }
 
             this.survey.questions.forEach((q: any) => {
-                let answer = this.getAnswerForQuestion(res, q._id);
-                if (Array.isArray(answer)) {
-                    answer = answer.join(', ');
-                }
-                row.push(answer);
+                const answer = this.getAnswerForQuestion(res, q._id);
+                row.push(this.formatAnswer(answer));
             });
             return row;
         });
@@ -238,11 +261,8 @@ export class ResponseViewerComponent implements OnInit {
             }
 
             this.survey.questions.forEach((q: any) => {
-                let answer = this.getAnswerForQuestion(res, q._id);
-                if (Array.isArray(answer)) {
-                    answer = answer.join(', ');
-                }
-                row.push(answer);
+                const answer = this.getAnswerForQuestion(res, q._id);
+                row.push(this.formatAnswer(answer));
             });
             return row;
         });

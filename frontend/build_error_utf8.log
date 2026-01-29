@@ -1,0 +1,383 @@
+﻿node.exe : 
+En línea: 1 Carácter: 
+1
++ & "C:\Program Files\
+nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (:String) [   
+ ], RemoteExceptio    
+n
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+Warning: C:\Users\DAM2
+\Desktop\ClonGonzalo2\
+ProyectoPI\frontend\no
+de_modules\canvg\lib\i
+ndex.es.js depends on 
+'core-js/modules/es.ar
+ray.index-of.js'. 
+CommonJS or AMD 
+dependencies can 
+cause optimization 
+bailouts.
+For more info see: htt
+ps://angular.io/guide/
+build#configuring-comm
+onjs-dependencies
+
+Warning: C:\Users\DAM2
+\Desktop\ClonGonzalo2\
+ProyectoPI\frontend\no
+de_modules\canvg\lib\i
+ndex.es.js depends on 
+'core-js/modules/es.ar
+ray.iterator.js'. 
+CommonJS or AMD 
+dependencies can 
+cause optimization 
+bailouts.
+For more info see: htt
+ps://angular.io/guide/
+build#configuring-comm
+onjs-dependencies
+
+Warning: C:\Users\DAM2
+\Desktop\ClonGonzalo2\
+ProyectoPI\frontend\no
+de_modules\canvg\lib\i
+ndex.es.js depends on 
+'core-js/modules/es.ar
+ray.reduce.js'. 
+CommonJS or AMD 
+dependencies can 
+cause optimization 
+bailouts.
+For more info see: htt
+ps://angular.io/guide/
+build#configuring-comm
+onjs-dependencies
+
+Warning: C:\Users\DAM2
+\Desktop\ClonGonzalo2\
+ProyectoPI\frontend\no
+de_modules\canvg\lib\i
+ndex.es.js depends on 
+'core-js/modules/es.ar
+ray.reverse.js'. 
+CommonJS or AMD 
+dependencies can 
+cause optimization 
+bailouts.
+For more info see: htt
+ps://angular.io/guide/
+build#configuring-comm
+onjs-dependencies
+
+Warning: C:\Users\DAM2
+\Desktop\ClonGonzalo2\
+ProyectoPI\frontend\no
+de_modules\canvg\lib\i
+ndex.es.js depends on 
+'core-js/modules/es.pr
+omise.js'. CommonJS 
+or AMD dependencies 
+can cause 
+optimization bailouts.
+For more info see: htt
+ps://angular.io/guide/
+build#configuring-comm
+onjs-dependencies
+
+Warning: C:\Users\DAM2
+\Desktop\ClonGonzalo2\
+ProyectoPI\frontend\no
+de_modules\canvg\lib\i
+ndex.es.js depends on 
+'core-js/modules/es.re
+gexp.to-string.js'. 
+CommonJS or AMD 
+dependencies can 
+cause optimization 
+bailouts.
+For more info see: htt
+ps://angular.io/guide/
+build#configuring-comm
+onjs-dependencies
+
+Warning: C:\Users\DAM2
+\Desktop\ClonGonzalo2\
+ProyectoPI\frontend\no
+de_modules\canvg\lib\i
+ndex.es.js depends on 
+'core-js/modules/es.st
+ring.ends-with.js'. 
+CommonJS or AMD 
+dependencies can 
+cause optimization 
+bailouts.
+For more info see: htt
+ps://angular.io/guide/
+build#configuring-comm
+onjs-dependencies
+
+Warning: C:\Users\DAM2
+\Desktop\ClonGonzalo2\
+ProyectoPI\frontend\no
+de_modules\canvg\lib\i
+ndex.es.js depends on 
+'core-js/modules/es.st
+ring.includes.js'. 
+CommonJS or AMD 
+dependencies can 
+cause optimization 
+bailouts.
+For more info see: htt
+ps://angular.io/guide/
+build#configuring-comm
+onjs-dependencies
+
+Warning: C:\Users\DAM2
+\Desktop\ClonGonzalo2\
+ProyectoPI\frontend\no
+de_modules\canvg\lib\i
+ndex.es.js depends on 
+'core-js/modules/es.st
+ring.match.js'. 
+CommonJS or AMD 
+dependencies can 
+cause optimization 
+bailouts.
+For more info see: htt
+ps://angular.io/guide/
+build#configuring-comm
+onjs-dependencies
+
+Warning: C:\Users\DAM2
+\Desktop\ClonGonzalo2\
+ProyectoPI\frontend\no
+de_modules\canvg\lib\i
+ndex.es.js depends on 
+'core-js/modules/es.st
+ring.replace.js'. 
+CommonJS or AMD 
+dependencies can 
+cause optimization 
+bailouts.
+For more info see: htt
+ps://angular.io/guide/
+build#configuring-comm
+onjs-dependencies
+
+Warning: C:\Users\DAM2
+\Desktop\ClonGonzalo2\
+ProyectoPI\frontend\no
+de_modules\canvg\lib\i
+ndex.es.js depends on 
+'core-js/modules/es.st
+ring.split.js'. 
+CommonJS or AMD 
+dependencies can 
+cause optimization 
+bailouts.
+For more info see: htt
+ps://angular.io/guide/
+build#configuring-comm
+onjs-dependencies
+
+Warning: C:\Users\DAM2
+\Desktop\ClonGonzalo2\
+ProyectoPI\frontend\no
+de_modules\canvg\lib\i
+ndex.es.js depends on 
+'core-js/modules/es.st
+ring.starts-with.js'. 
+CommonJS or AMD 
+dependencies can 
+cause optimization 
+bailouts.
+For more info see: htt
+ps://angular.io/guide/
+build#configuring-comm
+onjs-dependencies
+
+Warning: C:\Users\DAM2
+\Desktop\ClonGonzalo2\
+ProyectoPI\frontend\no
+de_modules\canvg\lib\i
+ndex.es.js depends on 
+'core-js/modules/es.st
+ring.trim.js'. 
+CommonJS or AMD 
+dependencies can 
+cause optimization 
+bailouts.
+For more info see: htt
+ps://angular.io/guide/
+build#configuring-comm
+onjs-dependencies
+
+Warning: C:\Users\DAM2
+\Desktop\ClonGonzalo2\
+ProyectoPI\frontend\no
+de_modules\canvg\lib\i
+ndex.es.js depends on 
+'core-js/modules/web.d
+om-collections.iterato
+r.js'. CommonJS or 
+AMD dependencies can 
+cause optimization 
+bailouts.
+For more info see: htt
+ps://angular.io/guide/
+build#configuring-comm
+onjs-dependencies
+
+Warning: C:\Users\DAM2
+\Desktop\ClonGonzalo2\
+ProyectoPI\frontend\no
+de_modules\canvg\lib\i
+ndex.es.js depends on 
+'raf'. CommonJS or 
+AMD dependencies can 
+cause optimization 
+bailouts.
+For more info see: htt
+ps://angular.io/guide/
+build#configuring-comm
+onjs-dependencies
+
+Warning: C:\Users\DAM2
+\Desktop\ClonGonzalo2\
+ProyectoPI\frontend\no
+de_modules\canvg\lib\i
+ndex.es.js depends on 
+'rgbcolor'. CommonJS 
+or AMD dependencies 
+can cause 
+optimization bailouts.
+For more info see: htt
+ps://angular.io/guide/
+build#configuring-comm
+onjs-dependencies
+
+Warning: C:\Users\DAM2
+\Desktop\ClonGonzalo2\
+ProyectoPI\frontend\sr
+c\app\components\teach
+er\response-viewer\res
+ponse-viewer.component
+.ts depends on 
+'jspdf-autotable'. 
+CommonJS or AMD 
+dependencies can 
+cause optimization 
+bailouts.
+For more info see: htt
+ps://angular.io/guide/
+build#configuring-comm
+onjs-dependencies
+
+Warning: C:\Users\DAM2
+\Desktop\ClonGonzalo2\
+ProyectoPI\frontend\sr
+c\app\services\alert.s
+ervice.ts depends on 
+'sweetalert2'. 
+CommonJS or AMD 
+dependencies can 
+cause optimization 
+bailouts.
+For more info see: htt
+ps://angular.io/guide/
+build#configuring-comm
+onjs-dependencies
+
+
+
+Error: src/app/compone
+nts/student/survey-tak
+er/survey-taker.compon
+ent.html:145:106 - 
+error TS2339: 
+Property 'files' does 
+not exist on type 
+'EventTarget'.
+
+145                   
+                      
+    (change)="answers.
+at(i).get('value')?.se
+tValue($event.target.f
+iles?.[0]?.name)">
+                      
+                      
+                      
+                      
+                     
+~~~~~
+
+  src/app/components/s
+tudent/survey-taker/su
+rvey-taker.component.t
+s:10:18
+    10     
+templateUrl: './survey
+-taker.component.html'
+,
+                      
+  ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    Error occurs in 
+the template of 
+component 
+SurveyTakerComponent.
+
+
+Error: src/app/compone
+nts/student/survey-tak
+er/survey-taker.compon
+ent.html:145:106 - 
+error TS2531: Object 
+is possibly 'null'.
+
+145                   
+                      
+    (change)="answers.
+at(i).get('value')?.se
+tValue($event.target.f
+iles?.[0]?.name)">
+                      
+                      
+                      
+                      
+                     
+~~~~~
+
+  src/app/components/s
+tudent/survey-taker/su
+rvey-taker.component.t
+s:10:18
+    10     
+templateUrl: './survey
+-taker.component.html'
+,
+                      
+  ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    Error occurs in 
+the template of 
+component 
+SurveyTakerComponent.
+
+
+

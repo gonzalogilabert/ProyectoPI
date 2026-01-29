@@ -14,7 +14,7 @@ export class SurveyTakerComponent implements OnInit, OnDestroy {
     survey: any;
     responseForm: FormGroup;
     currentPage = 0;
-    questionsPerPage = 3;
+    questionsPerPage = 100; // Mostrar todas las preguntas para evitar confusión
     timeLeft: number = 0;
     timerSubscription?: Subscription;
     userEmail: string | null = null;
@@ -57,16 +57,20 @@ export class SurveyTakerComponent implements OnInit, OnDestroy {
     initForm() {
         const answers = this.responseForm.get('answers') as FormArray;
         this.survey.questions.forEach((q: any) => {
+            let initialValue: any = '';
             let validators = q.required ? [Validators.required] : [];
 
-            // For multi-choice, required means at least one must be selected
-            if (q.type === 'multi' && q.required) {
-                validators = [Validators.required, Validators.minLength(1)];
+            if (q.type === 'multi') {
+                initialValue = [];
+                if (q.required) validators = [Validators.required, Validators.minLength(1)];
+            } else if (q.type === 'grid_radio' || q.type === 'grid_check') {
+                initialValue = {}; // Row-based object
+                // Grid validation is complex for native Validators, we'll handle visually or with custom logic if needed
             }
 
             answers.push(this.fb.group({
                 questionId: [q._id],
-                value: [q.type === 'multi' ? [] : '', validators]
+                value: [initialValue, validators]
             }));
         });
     }
@@ -116,6 +120,41 @@ export class SurveyTakerComponent implements OnInit, OnDestroy {
         }
     }
 
+    onGridChange(qIndex: number, row: string, col: string, isCheck: boolean, event: any) {
+        const control = this.answers.at(qIndex).get('value');
+        const currentVal = { ...(control?.value || {}) };
+
+        if (!isCheck) {
+            // Radio: simply set the column for this row
+            currentVal[row] = col;
+        } else {
+            // Checkbox: manage array for this row
+            const rowArr = [...(currentVal[row] || [])];
+            if (event.target.checked) {
+                if (!rowArr.includes(col)) rowArr.push(col);
+            } else {
+                const idx = rowArr.indexOf(col);
+                if (idx > -1) rowArr.splice(idx, 1);
+            }
+            currentVal[row] = rowArr;
+        }
+
+        control?.setValue(currentVal);
+        control?.markAsDirty();
+        control?.markAsTouched();
+    }
+
+    isGridChecked(qIndex: number, row: string, col: string, isCheck: boolean): boolean {
+        const val = this.answers.at(qIndex).get('value')?.value;
+        if (!val || !val[row]) return false;
+
+        if (!isCheck) {
+            return val[row] === col;
+        } else {
+            return val[row].includes(col);
+        }
+    }
+
     onMultiChange(event: any, index: number, option: string) {
         const control = this.answers.at(index).get('value');
         const valueArray = [...(control?.value || [])];
@@ -130,6 +169,13 @@ export class SurveyTakerComponent implements OnInit, OnDestroy {
         control?.setValue(valueArray.length > 0 ? valueArray : null);
         control?.markAsDirty();
         control?.markAsTouched();
+    }
+
+    onFileSelected(event: any, index: number) {
+        const file = event.target.files?.[0];
+        if (file) {
+            this.answers.at(index).get('value')?.setValue(file.name);
+        }
     }
 
     startTimer(seconds: number) {
@@ -209,5 +255,13 @@ export class SurveyTakerComponent implements OnInit, OnDestroy {
         if (this.timerSubscription) {
             this.timerSubscription.unsubscribe();
         }
+    }
+
+    trackByQuestion(index: number, q: any): any {
+        return q._id || index;
+    }
+
+    trackByOption(index: number, option: any): any {
+        return index + '-' + option;
     }
 }
