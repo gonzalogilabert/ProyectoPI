@@ -49,17 +49,6 @@
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <div class="d-flex align-items-center">
                                     <h5 class="text-primary-custom mb-0 me-3">Pregunta #{{i + 1}}</h5>
-                                    <!-- Botones de reordenar -->
-                                    <div class="btn-group btn-group-sm me-2">
-                                        <button type="button" class="btn btn-outline-secondary"
-                                            (click)="moveQuestion(i, 'up')" [disabled]="i === 0">
-                                            <i class="bi bi-chevron-up"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-outline-secondary"
-                                            (click)="moveQuestion(i, 'down')" [disabled]="i === questions.length - 1">
-                                            <i class="bi bi-chevron-down"></i>
-                                        </button>
-                                    </div>
                                     <!-- Botón de duplicar -->
                                     <button type="button" class="btn btn-outline-primary btn-sm"
                                         (click)="duplicateQuestion(i)" title="Duplicar">

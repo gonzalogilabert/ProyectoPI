@@ -120,14 +120,6 @@ export class SurveyCreatorComponent implements OnInit {
         this.questions.insert(index + 1, this.createQuestion(question));
     }
 
-    moveQuestion(index: number, direction: 'up' | 'down') {
-        const newIndex = direction === 'up' ? index - 1 : index + 1;
-        if (newIndex < 0 || newIndex >= this.questions.length) return;
-
-        const control = this.questions.at(index);
-        this.questions.removeAt(index);
-        this.questions.insert(newIndex, control);
-    }
 
     getOptions(questionIndex: number): FormArray {
         return this.questions.at(questionIndex).get('options') as FormArray;
