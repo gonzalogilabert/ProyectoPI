@@ -57,7 +57,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h6 class="text-muted mb-0">
                             <i class="bi bi-calendar-event me-1"></i>
-                            Respuesta #{{j + 1}} - {{res.submittedAt | date:'short'}}
+                            Respuesta #{{j + 1}} - {{res.submittedAt | date:'dd/MM/yyyy, HH:mm'}}
                         </h6>
                     </div>
                     <div class="table-responsive">
@@ -89,12 +89,12 @@
         <div class="card shadow-sm border-0 mb-4" *ngFor="let q of survey.questions">
             <div class="card-header bg-white py-3">
                 <h5 class="card-title mb-0">{{q.text}}</h5>
-                <small class="text-muted">Tipo: {{q.type}}</small>
+                <small class="text-muted">Tipo: {{getQuestionTypeLabel(q.type)}}</small>
             </div>
             <div class="card-body">
                 <div *ngIf="!isChartable(q.type)" class="alert alert-secondary mb-0">
                     <i class="bi bi-info-circle me-2"></i>
-                    Esta pregunta no se puede mostrar en gráfico ({{q.type}}).
+                    Esta pregunta no se puede mostrar en gráfico ({{getQuestionTypeLabel(q.type)}}).
                     <a href="javascript:void(0)" (click)="activeTab = 'byUser'">Ver respuestas por usuario</a>
                 </div>
 

@@ -25,3 +25,12 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+
+---
+
+## Conexión a la API (nota rápida)
+
+- Si cambias el puerto del backend (por defecto `3000`), actualiza la URL de la API en:
+  `frontend/src/app/services/survey.service.ts` (variable `private apiUrl`).
+- Para una mejor práctica, considera mover esa URL a `src/environments/environment.ts` y usar `environment.apiUrl`.
+

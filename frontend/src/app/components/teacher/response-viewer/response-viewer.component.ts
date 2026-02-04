@@ -20,7 +20,7 @@ export class ResponseViewerComponent implements OnInit {
     questionStats: any = {};
     responsesByUser: { [email: string]: any[] } = {};
     expandedUsers: Set<string> = new Set();
-    chartDataMap: { [key: string]: ChartData<'bar'> } = {};
+    chartDataMap: { [key: string]: ChartData } = {};
 
     public barChartOptions: ChartConfiguration['options'] = {
         responsive: true,
@@ -206,23 +206,98 @@ export class ResponseViewerComponent implements OnInit {
         return val.toString();
     }
 
+    getQuestionTypeLabel(type: string): string {
+        const typeLabels: { [key: string]: string } = {
+            'short': 'Respuesta corta',
+            'paragraph': 'Párrafo',
+            'test': 'Varias opciones (Radio)',
+            'multi': 'Casillas (Checkboxes)',
+            'dropdown': 'Desplegable',
+            'file': 'Subir archivos',
+            'scale': 'Escala lineal (1-5)',
+            'rating': 'Calificación (Estrellas)',
+            'grid_radio': 'Cuadrícula de varias opciones',
+            'grid_check': 'Cuadrícula de casillas',
+            'date': 'Fecha',
+            'time': 'Hora'
+        };
+        return typeLabels[type] || type;
+    }
+
     exportToPdf() {
-        const doc = new jsPDF();
-
-        const title = this.survey ? `Respuestas: ${this.survey.title}` : 'Respuestas de la Encuesta';
-        doc.text(title, 14, 22);
-
         if (!this.survey) return;
 
-        // Include email column if survey is not anonymous
+        // Use landscape orientation if there are many questions
+        const orientation = this.survey.questions.length > 3 ? 'landscape' : 'portrait';
+        const doc = new jsPDF({
+            orientation: orientation as any,
+            unit: 'mm',
+            format: 'a4'
+        });
+
+        // Define color scheme
+        const primaryColor = '#2c3e50';
+        const headerColor = '#5dade2'; // Lighter blue for table headers
+        const lightGray = '#ecf0f1';
+        const darkGray = '#7f8c8d';
+
+        const pageWidth = doc.internal.pageSize.getWidth();
+
+        // Add header background
+        doc.setFillColor(18, 150, 214); // Primary light blue from app
+        doc.rect(0, 0, pageWidth, 45, 'F');
+
+        // Add title
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Sistema de Encuestas', pageWidth / 2, 20, { align: 'center' });
+
+        // Add survey title
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'normal');
+        doc.text(this.survey.title, pageWidth / 2, 30, { align: 'center' });
+
+        // Add metadata
+        doc.setFontSize(9);
+        doc.setTextColor(200, 200, 200);
+        const currentDate = new Date().toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        doc.text(`Generado el: ${currentDate}`, pageWidth / 2, 38, { align: 'center' });
+
+        // Reset text color for body
+        doc.setTextColor(0, 0, 0);
+
+        // Add summary statistics box
+        const statsY = 52;
+        const boxWidth = pageWidth - 28;
+        doc.setFillColor(236, 240, 241); // lightGray
+        doc.roundedRect(14, statsY, boxWidth, 20, 3, 3, 'F');
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(44, 62, 80);
+        doc.text('Resumen:', 20, statsY + 7);
+
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Total de respuestas: ${this.responses.length}`, 20, statsY + 14);
+        doc.text(`Tipo: ${this.survey.isAnonymous ? 'Anónima' : 'Identificada'}`, pageWidth / 3, statsY + 14);
+        doc.text(`Preguntas: ${this.survey.questions.length}`, (pageWidth / 3) * 2, statsY + 14);
+
+        // Prepare table headers
         const head = this.survey.isAnonymous
             ? [['Fecha', ...this.survey.questions.map((q: any) => q.text)]]
             : [['Fecha', 'Correo', ...this.survey.questions.map((q: any) => q.text)]];
 
+        // Prepare table body
         const body = this.responses.map((res: any) => {
-            const row = [new Date(res.submittedAt).toLocaleDateString()];
+            const row = [new Date(res.submittedAt).toLocaleDateString('es-ES')];
 
-            // Add email if survey is not anonymous
             if (!this.survey.isAnonymous) {
                 row.push(res.userEmail || 'N/A');
             }
@@ -234,10 +309,77 @@ export class ResponseViewerComponent implements OnInit {
             return row;
         });
 
+        // Calculate available width for question columns
+        const totalColumns = head[0].length;
+        const dateWidth = 22;
+        const emailWidth = this.survey.isAnonymous ? 0 : 40;
+        const availableWidth = pageWidth - 28 - dateWidth - emailWidth;
+        const questionColumnWidth = availableWidth / (totalColumns - (this.survey.isAnonymous ? 1 : 2));
+
+        // Build column styles dynamically
+        const columnStyles: any = {
+            0: { cellWidth: dateWidth, halign: 'center', fontSize: 7 }
+        };
+
+        if (!this.survey.isAnonymous) {
+            columnStyles[1] = { cellWidth: emailWidth, fontSize: 7 };
+        }
+
+        // Set width for question columns
+        const startCol = this.survey.isAnonymous ? 1 : 2;
+        for (let i = startCol; i < totalColumns; i++) {
+            columnStyles[i] = { cellWidth: questionColumnWidth, fontSize: 7 };
+        }
+
+        // Add table with enhanced styling
         autoTable(doc, {
             head: head,
             body: body,
-            startY: 30,
+            startY: statsY + 25,
+            theme: 'striped',
+            headStyles: {
+                fillColor: [93, 173, 226], // headerColor - lighter blue
+                textColor: [255, 255, 255],
+                fontSize: 8,
+                fontStyle: 'bold',
+                halign: 'center',
+                cellPadding: 3
+            },
+            bodyStyles: {
+                fontSize: 7,
+                cellPadding: 2,
+                textColor: [44, 62, 80]
+            },
+            alternateRowStyles: {
+                fillColor: [245, 247, 250]
+            },
+            columnStyles: columnStyles,
+            styles: {
+                overflow: 'linebreak',
+                cellWidth: 'wrap',
+                lineColor: [189, 195, 199],
+                lineWidth: 0.1
+            },
+            margin: { top: 10, left: 14, right: 14 },
+            didDrawPage: (data) => {
+                // Add footer with page numbers
+                const pageCount = (doc as any).internal.getNumberOfPages();
+                const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber;
+
+                doc.setFontSize(8);
+                doc.setTextColor(127, 140, 141); // darkGray
+                doc.text(
+                    `Página ${pageNumber} de ${pageCount}`,
+                    pageWidth / 2,
+                    doc.internal.pageSize.height - 10,
+                    { align: 'center' }
+                );
+
+                // Add footer line
+                doc.setDrawColor(189, 195, 199);
+                doc.setLineWidth(0.5);
+                doc.line(14, doc.internal.pageSize.height - 15, pageWidth - 14, doc.internal.pageSize.height - 15);
+            }
         });
 
         doc.save(`respuestas_${this.survey.title.replace(/\s+/g, '_')}.pdf`);
@@ -253,7 +395,7 @@ export class ResponseViewerComponent implements OnInit {
 
         // Prepare data rows
         const data = this.responses.map((res: any) => {
-            const row = [new Date(res.submittedAt).toLocaleDateString()];
+            const row = [new Date(res.submittedAt).toLocaleDateString('es-ES')];
 
             // Add email if survey is not anonymous
             if (!this.survey.isAnonymous) {
