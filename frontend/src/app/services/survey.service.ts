@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Survey } from '../models/survey.model';
+import { SurveyResponse } from '../models/response.model';
 
 @Injectable({
     providedIn: 'root'
@@ -11,19 +13,19 @@ export class SurveyService {
     constructor(private http: HttpClient) { }
 
     // Survey methods
-    createSurvey(survey: any): Observable<any> {
+    createSurvey(survey: Survey): Observable<any> {
         return this.http.post(`${this.apiUrl}/surveys`, survey);
     }
 
-    getSurveys(): Observable<any[]> {
-        return this.http.get<any[]>(`${this.apiUrl}/surveys`);
+    getSurveys(): Observable<Survey[]> {
+        return this.http.get<Survey[]>(`${this.apiUrl}/surveys`);
     }
 
-    getSurvey(id: string): Observable<any> {
-        return this.http.get<any>(`${this.apiUrl}/surveys/${id}`);
+    getSurvey(id: string): Observable<Survey> {
+        return this.http.get<Survey>(`${this.apiUrl}/surveys/${id}`);
     }
 
-    updateSurvey(id: string, survey: any): Observable<any> {
+    updateSurvey(id: string, survey: Survey): Observable<any> {
         return this.http.put(`${this.apiUrl}/surveys/${id}`, survey);
     }
 
@@ -32,11 +34,11 @@ export class SurveyService {
     }
 
     // Response methods
-    submitResponse(response: any): Observable<any> {
+    submitResponse(response: SurveyResponse): Observable<any> {
         return this.http.post(`${this.apiUrl}/responses`, response);
     }
 
-    getResponses(surveyId: string): Observable<any[]> {
-        return this.http.get<any[]>(`${this.apiUrl}/responses/survey/${surveyId}`);
+    getResponses(surveyId: string): Observable<SurveyResponse[]> {
+        return this.http.get<SurveyResponse[]>(`${this.apiUrl}/responses/survey/${surveyId}`);
     }
 }

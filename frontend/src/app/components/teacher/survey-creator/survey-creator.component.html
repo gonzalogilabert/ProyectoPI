@@ -2,8 +2,9 @@
     <div class="card shadow-sm border-0">
         <div class="card-header bg-dark-custom text-white p-4">
             <h2 class="mb-0">
-                <i class="bi me-2" [class.bi-plus-circle-fill]="!isEditMode" [class.bi-pencil-square]="isEditMode"></i>
-                {{isEditMode ? 'Editar Encuesta' : 'Nueva Encuesta'}}
+                <i class="bi me-2" [class.bi-plus-circle-fill]="!vm.isEditMode"
+                    [class.bi-pencil-square]="vm.isEditMode"></i>
+                {{vm.isEditMode ? 'Editar Encuesta' : 'Nueva Encuesta'}}
             </h2>
         </div>
         <div class="card-body p-4">
@@ -224,8 +225,9 @@
                     </button>
                     <button type="submit" class="btn btn-primary-custom btn-lg shadow-sm"
                         [disabled]="surveyForm.invalid">
-                        <i class="bi me-2" [class.bi-save]="isEditMode" [class.bi-check-circle-fill]="!isEditMode"></i>
-                        {{isEditMode ? 'Actualizar Encuesta' : 'Guardar y Publicar Encuesta'}}
+                        <i class="bi me-2" [class.bi-save]="vm.isEditMode"
+                            [class.bi-check-circle-fill]="!vm.isEditMode"></i>
+                        {{vm.isEditMode ? 'Actualizar Encuesta' : 'Guardar y Publicar Encuesta'}}
                     </button>
                     <p class="text-center text-muted small mt-2">
                         * Todos los campos marcados con asterisco son obligatorios.

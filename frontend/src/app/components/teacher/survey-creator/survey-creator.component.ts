@@ -1,222 +1,101 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
-import { SurveyService } from '../../../services/survey.service';
+import { FormGroup, FormArray } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { SurveyCreatorController } from '../../../controllers/survey-creator.controller';
 import { AlertService } from '../../../services/alert.service';
 
 @Component({
     selector: 'app-survey-creator',
     templateUrl: './survey-creator.component.html',
-    styleUrls: ['./survey-creator.component.css']
+    styleUrls: ['./survey-creator.component.css'],
+    providers: [SurveyCreatorController]
 })
 export class SurveyCreatorComponent implements OnInit {
-    surveyForm: FormGroup;
-    isEditMode = false;
-    surveyId: string | null = null;
 
     constructor(
-        private fb: FormBuilder,
-        private surveyService: SurveyService,
-        private router: Router,
+        public vm: SurveyCreatorController,
         private route: ActivatedRoute,
+        private router: Router,
         private alertService: AlertService
-    ) {
-        this.surveyForm = this.fb.group({
-            title: ['', [Validators.required, Validators.maxLength(50)]],
-            description: ['', Validators.maxLength(250)],
-            timeLimit: [0], // 0 means no limit
-            isAnonymous: [true],
-            questions: this.fb.array([])
-        });
-    }
+    ) { }
 
     ngOnInit(): void {
-        this.surveyId = this.route.snapshot.paramMap.get('id');
-        if (this.surveyId) {
-            this.isEditMode = true;
-            this.loadSurvey(this.surveyId);
-        } else {
-            this.addQuestion();
-        }
+        const id = this.route.snapshot.paramMap.get('id');
+        this.vm.init(id);
     }
 
-    loadSurvey(id: string) {
-        this.surveyService.getSurvey(id).subscribe({
-            next: (data) => {
-                this.surveyForm.patchValue({
-                    title: data.title,
-                    description: data.description,
-                    timeLimit: data.timeLimit,
-                    isAnonymous: data.isAnonymous
-                });
-
-                // Clear default question if any
-                while (this.questions.length !== 0) {
-                    this.questions.removeAt(0);
-                }
-
-                // Add questions from data
-                data.questions.forEach((q: any) => {
-                    this.questions.push(this.createQuestion(q));
-                });
-            },
-            error: (err) => {
-                console.error(err);
-                this.alertService.error('No se pudo cargar la encuesta para editar');
-                this.router.navigate(['/list']);
-            }
-        });
+    get surveyForm(): FormGroup {
+        return this.vm.surveyForm;
     }
 
     get questions(): FormArray {
-        return this.surveyForm.get('questions') as FormArray;
-    }
-
-    createQuestion(initialData: any = null): FormGroup {
-        const questionGroup = this.fb.group({
-            text: [initialData?.text || '', Validators.required],
-            description: [initialData?.description || ''],
-            type: [initialData?.type || 'short', Validators.required],
-            required: [initialData?.required || false],
-            options: this.fb.array([]),
-            rows: this.fb.array([]),
-            columns: this.fb.array([])
-        });
-
-        // Initialize Options
-        if (initialData?.options) {
-            initialData.options.forEach((opt: string) => {
-                (questionGroup.get('options') as FormArray).push(this.fb.control(opt, Validators.required));
-            });
-        }
-
-        // Initialize Rows (for grids)
-        if (initialData?.rows) {
-            initialData.rows.forEach((row: string) => {
-                (questionGroup.get('rows') as FormArray).push(this.fb.control(row, Validators.required));
-            });
-        }
-
-        // Initialize Columns (for grids)
-        if (initialData?.columns) {
-            initialData.columns.forEach((col: string) => {
-                (questionGroup.get('columns') as FormArray).push(this.fb.control(col, Validators.required));
-            });
-        }
-
-        return questionGroup;
+        return this.vm.questions;
     }
 
     addQuestion() {
-        this.questions.push(this.createQuestion());
+        this.vm.addQuestion();
     }
 
     removeQuestion(index: number) {
-        this.questions.removeAt(index);
+        this.vm.removeQuestion(index);
     }
 
     duplicateQuestion(index: number) {
-        const question = this.questions.at(index).value;
-        this.questions.insert(index + 1, this.createQuestion(question));
+        this.vm.duplicateQuestion(index);
     }
 
-
     getOptions(questionIndex: number): FormArray {
-        return this.questions.at(questionIndex).get('options') as FormArray;
+        return this.vm.getOptions(questionIndex);
     }
 
     addOption(questionIndex: number) {
-        this.getOptions(questionIndex).push(this.fb.control('', Validators.required));
+        this.vm.addOption(questionIndex);
     }
 
     removeOption(questionIndex: number, optionIndex: number) {
-        this.getOptions(questionIndex).removeAt(optionIndex);
+        this.vm.removeOption(questionIndex, optionIndex);
     }
 
-    // Grid Management
     getRows(questionIndex: number): FormArray {
-        return this.questions.at(questionIndex).get('rows') as FormArray;
+        return this.vm.getRows(questionIndex);
     }
 
     addRow(questionIndex: number) {
-        this.getRows(questionIndex).push(this.fb.control('', Validators.required));
+        this.vm.addRow(questionIndex);
     }
 
     removeRow(questionIndex: number, rowIndex: number) {
-        this.getRows(questionIndex).removeAt(rowIndex);
+        this.vm.removeRow(questionIndex, rowIndex);
     }
 
     getColumns(questionIndex: number): FormArray {
-        return this.questions.at(questionIndex).get('columns') as FormArray;
+        return this.vm.getColumns(questionIndex);
     }
 
     addColumn(questionIndex: number) {
-        this.getColumns(questionIndex).push(this.fb.control('', Validators.required));
+        this.vm.addColumn(questionIndex);
     }
 
     removeColumn(questionIndex: number, colIndex: number) {
-        this.getColumns(questionIndex).removeAt(colIndex);
+        this.vm.removeColumn(questionIndex, colIndex);
     }
 
     onTypeChange(index: number) {
-        const question = this.questions.at(index);
-        const options = question.get('options') as FormArray;
-        const rows = question.get('rows') as FormArray;
-        const columns = question.get('columns') as FormArray;
-        const type = question.get('type')?.value;
-
-        // Limpiar todas si es necesario, pero mejor ser específico
-        const needsOptions = ['test', 'multi', 'dropdown', 'scale'];
-        const needsGrid = ['grid_radio', 'grid_check'];
-
-        // Reset arrays based on new type
-        if (!needsOptions.includes(type)) {
-            while (options.length !== 0) options.removeAt(0);
-        } else if (options.length === 0) {
-            options.push(this.fb.control(type === 'scale' ? 'Etiqueta Min' : '', Validators.required));
-            if (type === 'scale') {
-                options.push(this.fb.control('Etiqueta Max', Validators.required));
-            }
-        }
-
-        if (!needsGrid.includes(type)) {
-            while (rows.length !== 0) rows.removeAt(0);
-            while (columns.length !== 0) columns.removeAt(0);
-        } else {
-            if (rows.length === 0) rows.push(this.fb.control('', Validators.required));
-            if (columns.length === 0) columns.push(this.fb.control('', Validators.required));
-        }
+        this.vm.onTypeChange(index);
     }
 
     onSubmit() {
-        if (this.surveyForm.valid) {
-            const surveyData = this.surveyForm.value;
-
-            if (this.isEditMode && this.surveyId) {
-                this.surveyService.updateSurvey(this.surveyId, surveyData).subscribe({
-                    next: (res) => {
-                        this.alertService.success('Encuesta actualizada con éxito');
-                        this.router.navigate(['/list']);
-                    },
-                    error: (err) => {
-                        console.error(err);
-                        this.alertService.error('Hubo un error al actualizar la encuesta');
-                    }
-                });
-            } else {
-                this.surveyService.createSurvey(surveyData).subscribe({
-                    next: (res) => {
-                        this.alertService.success('Encuesta creada con éxito');
-                        this.router.navigate(['/list']);
-                    },
-                    error: (err) => {
-                        console.error(err);
-                        this.alertService.error('Hubo un error al crear la encuesta');
-                    }
-                });
+        this.vm.submit().subscribe({
+            next: (res) => {
+                this.alertService.success(this.vm.isEditMode ? 'Encuesta actualizada con éxito' : 'Encuesta creada con éxito');
+                this.router.navigate(['/list']);
+            },
+            error: (err) => {
+                console.error(err);
+                if (err.message !== 'Form invalid') {
+                    this.alertService.error(this.vm.isEditMode ? 'Hubo un error al actualizar la encuesta' : 'Hubo un error al crear la encuesta');
+                }
             }
-        } else {
-            this.alertService.error('Por favor, rellena todos los campos obligatorios.');
-        }
+        });
     }
 }

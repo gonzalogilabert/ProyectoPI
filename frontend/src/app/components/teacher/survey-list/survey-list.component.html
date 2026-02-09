@@ -6,7 +6,7 @@
         </a>
     </div>
 
-    <div class="row">
+    <div class="row" *ngIf="vm.surveys$ | async as surveys">
         <div *ngIf="surveys.length === 0" class="col-12 text-center py-5">
             <i class="bi bi-inbox text-white display-1"></i>
             <p class="text-white mt-3">No hay encuestas creadas todavía.</p>
@@ -22,23 +22,24 @@
                     <p class="card-text text-muted small mb-4">{{survey.description || 'Sin descripción'}}</p>
 
                     <div class="d-flex gap-2">
-                        <button class="btn btn-outline-primary btn-sm" (click)="copyUrl(survey._id)">
+                        <button class="btn btn-outline-primary btn-sm" (click)="copyUrl(survey._id!)">
                             <i class="bi bi-share me-1"></i> Compartir
                         </button>
-                        <a [routerLink]="['/edit', survey._id]" class="btn btn-outline-warning btn-sm">
+                        <a [routerLink]="['/edit', survey._id!]" class="btn btn-outline-warning btn-sm">
                             <i class="bi bi-pencil me-1"></i> Editar
                         </a>
-                        <a [routerLink]="['/responses', survey._id]" class="btn btn-outline-info btn-sm">
+                        <a [routerLink]="['/responses', survey._id!]" class="btn btn-outline-info btn-sm">
                             <i class="bi bi-graph-up me-1"></i> Ver Respuestas
                         </a>
-                        <button class="btn btn-outline-danger btn-sm" (click)="deleteSurvey(survey._id)">
+                        <button class="btn btn-outline-danger btn-sm" (click)="deleteSurvey(survey._id!)">
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>
                 </div>
                 <div class="card-footer bg-white border-0 py-3">
                     <div class="small text-muted">
-                        <i class="bi bi-clock-history me-1"></i> Creada el: {{survey.createdAt | date:'dd/MM/yyyy, HH:mm'}}
+                        <i class="bi bi-clock-history me-1"></i> Creada el: {{survey.createdAt | date:'dd/MM/yyyy,
+                        HH:mm'}}
                     </div>
                 </div>
             </div>
