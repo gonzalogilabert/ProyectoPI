@@ -1,17 +1,22 @@
 <div class="d-flex flex-column min-vh-100">
-  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3" *ngIf="isLoggedIn$ | async">
     <div class="container">
       <a class="navbar-brand fw-bold" routerLink="/">
-        <img src="assets/logocampuscamara.png" alt="Campus Cámara Logo" height="40"
+        <img src="assets/logocampuscamara.png" alt="Campus Cámara Logo" height="60"
           class="d-inline-block align-text-top me-2">
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
+        <ul class="navbar-nav ms-auto align-items-center">
           <li class="nav-item">
-            <a class="nav-link" routerLink="/list" routerLinkActive="active">Mis Encuestas</a>
+            <a class="nav-link fs-5" routerLink="/list" routerLinkActive="active">Mis Encuestas</a>
+          </li>
+          <li class="nav-item ms-3">
+            <button class="btn btn-outline-danger btn-sm" (click)="logout()">
+              <i class="bi bi-box-arrow-right me-1"></i> Salir
+            </button>
           </li>
         </ul>
       </div>

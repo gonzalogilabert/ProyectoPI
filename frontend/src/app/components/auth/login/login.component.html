@@ -1,0 +1,65 @@
+<div class="login-page-wrapper">
+    <!-- Animated background bubbles for extra flair -->
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+
+    <div class="glass-container">
+        <div class="login-glass-card shadow-lg animate-fade-in">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-5">
+                    <div class="logo-wrapper mb-3">
+                        <img src="assets/logocampuscamara.png" alt="Campus Cámara" class="branding-logo">
+                    </div>
+                    <h2 class="title-gradient">Portal del Profesorado</h2>
+                    <p class="subtitle">Gestiona tus encuestas con facilidad</p>
+                </div>
+
+                <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+                    <div class="form-floating mb-4">
+                        <input type="email" class="form-control premium-input" id="email" [(ngModel)]="vm.email"
+                            name="email" placeholder="nombre@campuscamara.es" required #emailInput="ngModel">
+                        <label for="email"><i class="bi bi-envelope-fill me-2"></i>Correo Electrónico</label>
+                        <div class="invalid-feedback" [class.d-block]="emailInput.invalid && emailInput.touched">
+                            Por favor, introduce un correo válido
+                        </div>
+                    </div>
+
+                    <div class="form-floating mb-5">
+                        <input type="password" class="form-control premium-input" id="password"
+                            [(ngModel)]="vm.password" name="password" placeholder="Contraseña" required
+                            #passInput="ngModel">
+                        <label for="password"><i class="bi bi-lock-fill me-2"></i>Contraseña</label>
+                        <div class="invalid-feedback" [class.d-block]="passInput.invalid && passInput.touched">
+                            La contraseña es obligatoria
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-premium w-100 py-3 mb-4"
+                        [disabled]="vm.isLoading || loginForm.invalid">
+                        <div class="button-content" *ngIf="!vm.isLoading">
+                            <span>Acceder al Portal</span>
+                            <i class="bi bi-arrow-right-short fs-4"></i>
+                        </div>
+                        <div class="spinner-wrapper" *ngIf="vm.isLoading">
+                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                            <span class="ms-2">Validando...</span>
+                        </div>
+                    </button>
+                </form>
+
+                <div class="text-center">
+                    <a href="javascript:void(0)" class="forgot-password-link">
+                        ¿Problemas para acceder?
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Watermark/Logo styling if needed -->
+        <div class="footer-watermark">
+            <p>&copy; 2024 Campus Cámara FP</p>
+        </div>
+    </div>
+</div>

@@ -219,20 +219,32 @@
                     </div>
                 </div>
 
-                <div class="d-grid gap-2 mt-5">
-                    <button type="button" class="btn btn-light border" (click)="addQuestion()">
-                        <i class="bi bi-plus-lg me-2"></i>Añadir Pregunta
+                <div class="mt-5">
+                    <button type="button" class="btn btn-light border py-3 w-100 shadow-sm hover-elevate"
+                        (click)="addQuestion()">
+                        <i class="bi bi-plus-lg me-2 text-primary"></i>Añadir Nueva Pregunta
                     </button>
-                    <button type="submit" class="btn btn-primary-custom btn-lg shadow-sm"
-                        [disabled]="surveyForm.invalid">
-                        <i class="bi me-2" [class.bi-save]="vm.isEditMode"
-                            [class.bi-check-circle-fill]="!vm.isEditMode"></i>
-                        {{vm.isEditMode ? 'Actualizar Encuesta' : 'Guardar y Publicar Encuesta'}}
-                    </button>
-                    <p class="text-center text-muted small mt-2">
-                        * Todos los campos marcados con asterisco son obligatorios.
-                    </p>
                 </div>
+
+                <!-- Contenedor Final de Acciones -->
+                <div class="card bg-white shadow-sm border-0 mt-5 p-4 animate-fade-in">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div class="text-muted small">
+                            <i class="bi bi-info-circle me-1"></i> Asegúrate de revisar las preguntas antes de publicar.
+                        </div>
+                        <button type="submit"
+                            class="btn btn-primary-custom btn-lg px-5 py-3 shadow animate-pulse ms-auto"
+                            [disabled]="surveyForm.invalid">
+                            <i class="bi me-2" [class.bi-save]="vm.isEditMode"
+                                [class.bi-check-circle-fill]="!vm.isEditMode"></i>
+                            {{vm.isEditMode ? 'Actualizar Encuesta' : 'Guardar y Publicar Encuesta'}}
+                        </button>
+                    </div>
+                </div>
+
+                <p class="text-center text-muted small mt-4">
+                    * Todos los campos marcados con asterisco son obligatorios.
+                </p>
             </form>
         </div>
     </div>

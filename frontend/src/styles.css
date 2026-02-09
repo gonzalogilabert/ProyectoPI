@@ -6,12 +6,21 @@
     --dark-blue: #082b6e;
     --light-gray: #f8f9fa;
     --border-gray: #dee2e6;
+    --vibrant-green: #2ecc71;
+    --strong-orange: #ff9100;
 }
 
 body {
-    background-color: #2f4c82;
+    /* Blue Gradient Background */
+    background: linear-gradient(135deg, #082b6e, #1296d6);
+    background-attachment: fixed;
+
+    /* Fallback */
+    background-color: #082b6e;
+
     color: white;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
 }
 
 .bg-primary-custom {
@@ -28,6 +37,15 @@ body {
     color: var(--primary-blue);
 }
 
+.text-dark-custom {
+    color: var(--dark-blue) !important;
+}
+
+.card {
+    color: #333 !important;
+    /* Ensure content inside cards is dark */
+}
+
 .btn-primary-custom {
     background-color: var(--primary-blue);
     border-color: var(--primary-blue);
@@ -37,5 +55,29 @@ body {
 .btn-primary-custom:hover {
     background-color: var(--dark-blue);
     border-color: var(--dark-blue);
+    color: white;
+}
+
+.btn-success-custom {
+    background-color: var(--vibrant-green);
+    border-color: var(--vibrant-green);
+    color: white;
+}
+
+.btn-success-custom:hover {
+    background-color: #27ae60;
+    border-color: #27ae60;
+    color: white;
+}
+
+.btn-warning-custom {
+    background-color: var(--strong-orange);
+    border-color: var(--strong-orange);
+    color: white;
+}
+
+.btn-warning-custom:hover {
+    background-color: #e68200;
+    border-color: #e68200;
     color: white;
 }

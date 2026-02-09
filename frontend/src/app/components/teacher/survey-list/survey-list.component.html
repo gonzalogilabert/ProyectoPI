@@ -1,15 +1,42 @@
 <div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-list-stars me-2 text-primary-custom"></i>Gestión de Encuestas</h2>
-        <a routerLink="/create" class="btn btn-primary-custom">
-            <i class="bi bi-plus-lg me-2"></i>Nueva Encuesta
-        </a>
+    <div class="card bg-white shadow-sm border-0 mb-5 p-4 animate-fade-in">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="text-dark-custom mb-1"><i class="bi bi-list-stars me-2 text-primary-custom"></i>Gestión de
+                    Encuestas</h2>
+                <p class="text-muted mb-0">Crea y administra tus cuestionarios institucionales</p>
+            </div>
+            <a routerLink="/create"
+                class="btn btn-primary-custom btn-lg px-5 py-3 shadow-lg rounded-pill animate-pulse">
+                <i class="bi bi-plus-lg me-2"></i>Nueva Encuesta
+            </a>
+        </div>
     </div>
 
-    <div class="row" *ngIf="vm.surveys$ | async as surveys">
+    <!-- Search Bar -->
+    <div class="mb-4">
+        <div class="input-group">
+            <span class="input-group-text bg-white border-end-0">
+                <i class="bi bi-search text-muted"></i>
+            </span>
+            <input type="text" class="form-control border-start-0 ps-0"
+                placeholder="Buscar encuestas por nombre o descripción..."
+                (input)="vm.setSearchTerm($any($event.target).value)" #searchInput>
+            <button class="btn btn-outline-secondary" type="button" *ngIf="searchInput.value"
+                (click)="searchInput.value = ''; vm.setSearchTerm('')">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="row" *ngIf="vm.surveys$ | async as surveys; else loading">
         <div *ngIf="surveys.length === 0" class="col-12 text-center py-5">
-            <i class="bi bi-inbox text-white display-1"></i>
-            <p class="text-white mt-3">No hay encuestas creadas todavía.</p>
+            <div class="empty-state-card p-5 animate-fade-in">
+                <i class="bi bi-inbox text-white opacity-50 display-1 mb-4"></i>
+                <h3 class="text-white">Aún no hay encuestas</h3>
+                <p class="text-white opacity-75">Las encuestas que crees aparecerán aquí.</p>
+                <a routerLink="/create" class="btn btn-light mt-3">Comenzar ahora</a>
+            </div>
         </div>
 
         <div *ngFor="let survey of surveys" class="col-md-6 mb-4">
@@ -25,10 +52,10 @@
                         <button class="btn btn-outline-primary btn-sm" (click)="copyUrl(survey._id!)">
                             <i class="bi bi-share me-1"></i> Compartir
                         </button>
-                        <a [routerLink]="['/edit', survey._id!]" class="btn btn-outline-warning btn-sm">
+                        <a [routerLink]="['/edit', survey._id!]" class="btn btn-success-custom btn-sm">
                             <i class="bi bi-pencil me-1"></i> Editar
                         </a>
-                        <a [routerLink]="['/responses', survey._id!]" class="btn btn-outline-info btn-sm">
+                        <a [routerLink]="['/responses', survey._id!]" class="btn btn-warning-custom btn-sm">
                             <i class="bi bi-graph-up me-1"></i> Ver Respuestas
                         </a>
                         <button class="btn btn-outline-danger btn-sm" (click)="deleteSurvey(survey._id!)">
@@ -45,4 +72,13 @@
             </div>
         </div>
     </div>
+
+    <ng-template #loading>
+        <div class="col-12 text-center py-5">
+            <div class="spinner-border text-light" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="text-white mt-3">Cargando encuestas...</p>
+        </div>
+    </ng-template>
 </div>

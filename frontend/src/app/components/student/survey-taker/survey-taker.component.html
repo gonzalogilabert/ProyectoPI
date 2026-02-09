@@ -3,7 +3,7 @@
         <div class="col-lg-8">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h1 class="text-dark-custom">{{survey.title}}</h1>
+                    <h1 class="text-white">{{survey.title}}</h1>
                     <p class="text-muted">{{survey.description}}</p>
                 </div>
                 <div *ngIf="survey.timeLimit > 0" class="badge bg-danger p-3 fs-5 shadow-sm">
@@ -165,21 +165,14 @@
                     </div>
                 </div>
 
-                <!-- Controles de navegación -->
-                <div class="d-flex justify-content-between mt-4 mb-5">
-                    <button type="button" class="btn btn-outline-secondary btn-lg" (click)="prevPage()"
-                        [disabled]="currentPage === 0">
-                        <i class="bi bi-chevron-left me-2"></i>Anterior
+                <!-- Botón Único de Finalización -->
+                <div class="d-grid gap-2 mt-5 mb-5 px-4">
+                    <button type="submit" class="btn btn-success btn-lg py-3 shadow-lg rounded-pill animate-pulse">
+                        <i class="bi bi-check-circle-fill me-2"></i>Finalizar Encuesta
                     </button>
-
-                    <button type="button" class="btn btn-primary-custom btn-lg" (click)="nextPage()"
-                        *ngIf="currentPage < totalPages - 1">
-                        Siguiente<i class="bi bi-chevron-right ms-2"></i>
-                    </button>
-
-                    <button type="submit" class="btn btn-success btn-lg" *ngIf="currentPage === totalPages - 1">
-                        <i class="bi bi-send-fill me-2"></i>Finalizar Encuesta
-                    </button>
+                    <p class="text-center text-muted small mt-2">
+                        Asegúrate de haber respondido todas las preguntas marcadas con *
+                    </p>
                 </div>
             </form>
         </div>

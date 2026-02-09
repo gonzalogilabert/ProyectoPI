@@ -2,3 +2,28 @@
 .table th {
     font-weight: 600;
 }
+
+/* Chart container styles */
+.chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 10px;
+}
+
+.chart-container canvas {
+    max-height: 100%;
+    max-width: 100%;
+}
+
+/* Ensure cards don't overlap */
+.card {
+    margin-bottom: 1.5rem;
+    overflow: visible;
+}
+
+.card-body {
+    min-height: 100px;
+    overflow: visible;
+}

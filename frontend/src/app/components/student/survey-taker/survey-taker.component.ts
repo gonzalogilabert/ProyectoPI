@@ -14,7 +14,7 @@ export class SurveyTakerComponent implements OnInit, OnDestroy {
     survey: any;
     responseForm: FormGroup;
     currentPage = 0;
-    questionsPerPage = 100; // Mostrar todas las preguntas para evitar confusión
+    questionsPerPage = 1000; // Garantizar que todas las preguntas se vean en una sola página
     timeLeft: number = 0;
     timerSubscription?: Subscription;
     userEmail: string | null = null;
@@ -93,32 +93,7 @@ export class SurveyTakerComponent implements OnInit, OnDestroy {
         return Math.ceil(this.survey.questions.length / this.questionsPerPage);
     }
 
-    nextPage() {
-        const currentBatchStart = this.currentPage * this.questionsPerPage;
-        let batchIsValid = true;
-
-        // Check validation for current page before proceeding
-        for (let i = 0; i < this.questionsForCurrentPage.length; i++) {
-            const index = currentBatchStart + i;
-            const control = this.answers.at(index).get('value');
-            if (control?.invalid) {
-                control.markAsTouched();
-                batchIsValid = false;
-            }
-        }
-
-        if (batchIsValid && this.currentPage < this.totalPages - 1) {
-            this.currentPage++;
-        } else if (!batchIsValid) {
-            this.alertService.error('Por favor, responde a las preguntas obligatorias antes de continuar.', 'Validación');
-        }
-    }
-
-    prevPage() {
-        if (this.currentPage > 0) {
-            this.currentPage--;
-        }
-    }
+    // Navigation methods removed as per user request to have a single-page experience
 
     onGridChange(qIndex: number, row: string, col: string, isCheck: boolean, event: any) {
         const control = this.answers.at(qIndex).get('value');

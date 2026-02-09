@@ -7,12 +7,16 @@ import { NgChartsModule } from 'ng2-charts';
 
 Chart.register(...registerables);
 
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SurveyCreatorComponent } from './components/teacher/survey-creator/survey-creator.component';
 import { SurveyListComponent } from './components/teacher/survey-list/survey-list.component';
 import { ResponseViewerComponent } from './components/teacher/response-viewer/response-viewer.component';
 import { SurveyTakerComponent } from './components/student/survey-taker/survey-taker.component';
+import { LoginComponent } from './components/auth/login/login.component';
 
 @NgModule({
   declarations: [
@@ -20,10 +24,13 @@ import { SurveyTakerComponent } from './components/student/survey-taker/survey-t
     SurveyCreatorComponent,
     SurveyListComponent,
     ResponseViewerComponent,
-    SurveyTakerComponent
+    SurveyTakerComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
+    CommonModule,
+    RouterModule,
     AppRoutingModule,
     ReactiveFormsModule,
     FormsModule,

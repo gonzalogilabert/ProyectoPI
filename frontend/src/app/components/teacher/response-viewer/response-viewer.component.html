@@ -98,8 +98,7 @@
                     <a href="javascript:void(0)" (click)="activeTab = 'byUser'">Ver respuestas por usuario</a>
                 </div>
 
-                <div *ngIf="isChartable(q.type) && chartDataMap[q._id]" class="chart-container"
-                    style="position: relative; height:300px; width:100%">
+                <div *ngIf="isChartable(q.type) && chartDataMap[q._id]" class="chart-container">
                     <canvas baseChart [data]="chartDataMap[q._id]" [options]="barChartOptions" [type]="'bar'">
                     </canvas>
                 </div>
